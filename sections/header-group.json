@@ -112,54 +112,10 @@
         "enable_transparent_header_collection": false,
         "collection_color_scheme": "default"
       }
-    },
-    "gift_guide_xM3LbE": {
-      "type": "gift-guide",
-      "blocks": {
-        "product_kDEqy4": {
-          "type": "product",
-          "settings": {
-            "product": "black-leather-bag"
-          }
-        },
-        "product_zUWtaW": {
-          "type": "product",
-          "settings": {
-            "product": "blue-silk-tuxedo"
-          }
-        },
-        "product_FFBLmV": {
-          "type": "product",
-          "settings": {
-            "product": "chequered-red-shirt"
-          }
-        },
-        "product_EeWTyH": {
-          "type": "product",
-          "settings": {
-            "product": "classic-leather-jacket"
-          }
-        }
-      },
-      "block_order": [
-        "product_kDEqy4",
-        "product_zUWtaW",
-        "product_FFBLmV",
-        "product_EeWTyH"
-      ],
-      "name": "Gift Guide",
-      "settings": {
-        "store_name": "Tisso Vison",
-        "hero_title": "The Gift Guide",
-        "hero_subtitle": "Discover Joy: Your Ultimate Holiday Gift Destination.",
-        "hero_btn_text": "Choose Gift",
-        "grid_title": "Tisso vison in the wild"
-      }
     }
   },
   "order": [
     "header_announcements_9jGBFp",
-    "header_section",
-    "gift_guide_xM3LbE"
+    "header_section"
   ]
 }

@@ -37,66 +37,9 @@
           }
         }
       },
-      "block_order": [
-        "product_1",
-        "product_2",
-        "product_3",
-        "product_4"
-      ],
-      "settings": {
-        "store_name": "Tisso Vison",
-        "hero_title": "The Gift Guide",
-        "hero_subtitle": "Discover Joy: Your Ultimate Holiday Gift Destination.",
-        "hero_btn_text": "Choose Gift",
-        "grid_title": "Tisso vison in the wild"
-      }
-    },
-    "gift_guide_nNtrPi": {
-      "type": "gift-guide",
-      "blocks": {
-        "product_CAWtwq": {
-          "type": "product",
-          "settings": {
-            "product": ""
-          }
-        },
-        "product_6Hwxpp": {
-          "type": "product",
-          "settings": {
-            "product": ""
-          }
-        },
-        "product_UNhEAV": {
-          "type": "product",
-          "settings": {
-            "product": ""
-          }
-        },
-        "product_MVhzU8": {
-          "type": "product",
-          "settings": {
-            "product": ""
-          }
-        }
-      },
-      "block_order": [
-        "product_CAWtwq",
-        "product_6Hwxpp",
-        "product_UNhEAV",
-        "product_MVhzU8"
-      ],
-      "name": "Gift Guide",
-      "settings": {
-        "store_name": "Tisso Vison",
-        "hero_title": "The Gift Guide",
-        "hero_subtitle": "Discover Joy: Your Ultimate Holiday Gift Destination.",
-        "hero_btn_text": "Choose Gift",
-        "grid_title": "Tisso vison in the wild"
-      }
+      "block_order": ["product_1","product_2","product_3","product_4"],
+      "settings": {}
     }
   },
-  "order": [
-    "gift_guide",
-    "gift_guide_nNtrPi"
-  ]
+  "order": ["gift_guide"]
 }

@@ -1,0 +1,1042 @@
+{% comment %}
+  Gift Guide Section
+  - Displays a hero area with title and CTA button
+  - Shows a 4-column product grid (products selectable from customizer)
+  - Opens a flyout popup on product click with:
+      * Product image, name, price, description
+      * Color variant selector
+      * Size variant selector (dropdown)
+      * AJAX Add to Cart button
+      * Sold Out state when Black+White variant is selected
+  - Fully responsive (mobile: 2 columns, stacked popup)
+  - No jQuery, vanilla JS only
+{% endcomment %}
+
+<style>
+  /* =============================================
+     GIFT GUIDE — CSS VARIABLES & RESET
+  ============================================= */
+  .gift-guide-section * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .gift-guide-section {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #111;
+    width: 100%;
+  }
+
+  /* =============================================
+     HERO
+  ============================================= */
+  .gift-guide__hero {
+    position: relative;
+    width: 100%;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: #f5f5f0;
+    padding: 60px 40px;
+  }
+
+  .gift-guide__hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('{{ section.settings.hero_bg_image | img_url: "master" }}');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  /* Illustrated pattern overlay (matches Figma sketched gadgets look) */
+  .gift-guide__hero-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  .gift-guide__hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+  }
+
+  .gift-guide__hero-logo {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #111;
+    margin-bottom: 20px;
+  }
+
+  .gift-guide__hero-title {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: #111;
+    margin-bottom: 16px;
+  }
+
+  .gift-guide__hero-subtitle {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    max-width: 340px;
+  }
+
+  .gift-guide__hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFD700;
+    color: #111;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .gift-guide__hero-btn:hover {
+    background: #f0c800;
+    transform: translateX(3px);
+  }
+
+  .gift-guide__hero-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* =============================================
+     SECTION HEADER
+  ============================================= */
+  .gift-guide__header {
+    padding: 48px 40px 24px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .gift-guide__section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 8px;
+  }
+
+  .gift-guide__section-title {
+    font-size: clamp(22px, 3vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #111;
+  }
+
+  /* =============================================
+     PRODUCT GRID
+  ============================================= */
+  .gift-guide__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    padding: 0 40px 60px;
+  }
+
+  .gift-guide__product-card {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    background: #f0f0ec;
+  }
+
+  .gift-guide__product-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.3s ease;
+    pointer-events: none;
+  }
+
+  .gift-guide__product-card:hover::after {
+    background: rgba(0,0,0,0.08);
+  }
+
+  .gift-guide__product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .gift-guide__product-card:hover .gift-guide__product-img {
+    transform: scale(1.04);
+  }
+
+  /* Small + icon on card */
+  .gift-guide__product-plus {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 300;
+    color: #111;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .gift-guide__product-card:hover .gift-guide__product-plus {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* =============================================
+     FLYOUT OVERLAY
+  ============================================= */
+  .gift-guide__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .gift-guide__overlay.is-open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* =============================================
+     FLYOUT POPUP
+  ============================================= */
+  .gift-guide__flyout {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -48%) scale(0.96);
+    z-index: 9999;
+    background: #fff;
+    width: 90%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .gift-guide__flyout.is-open {
+    opacity: 1;
+    pointer-events: all;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .gift-guide__flyout-inner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Flyout close button */
+  .gift-guide__flyout-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #111;
+    z-index: 10;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .gift-guide__flyout-close:hover {
+    opacity: 0.6;
+  }
+
+  /* Flyout image */
+  .gift-guide__flyout-image-wrap {
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: #f0f0ec;
+    flex-shrink: 0;
+  }
+
+  .gift-guide__flyout-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Flyout body */
+  .gift-guide__flyout-body {
+    padding: 24px;
+  }
+
+  .gift-guide__flyout-name {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #111;
+    margin-bottom: 6px;
+    padding-right: 30px;
+  }
+
+  .gift-guide__flyout-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 12px;
+  }
+
+  .gift-guide__flyout-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  /* Color selector */
+  .gift-guide__flyout-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .gift-guide__color-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .gift-guide__color-btn {
+    padding: 7px 16px;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+  }
+
+  .gift-guide__color-btn:hover {
+    border-color: #111;
+  }
+
+  .gift-guide__color-btn.is-selected {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+  }
+
+  /* Size selector */
+  .gift-guide__size-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    font-size: 14px;
+    color: #111;
+    cursor: pointer;
+    margin-bottom: 20px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23111' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  .gift-guide__size-select:focus {
+    outline: none;
+    border-color: #111;
+  }
+
+  /* Add to cart button */
+  .gift-guide__add-btn {
+    width: 100%;
+    padding: 16px;
+    background: #111;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .gift-guide__add-btn:hover:not(:disabled) {
+    background: #333;
+    transform: translateY(-1px);
+  }
+
+  .gift-guide__add-btn:disabled,
+  .gift-guide__add-btn.is-sold-out {
+    background: #ccc;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .gift-guide__add-btn.is-success {
+    background: #2a7a4b;
+  }
+
+  .gift-guide__add-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Loading spinner */
+  .gift-guide__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: giftSpinner 0.7s linear infinite;
+    display: none;
+  }
+
+  .gift-guide__add-btn.is-loading .gift-guide__spinner {
+    display: block;
+  }
+
+  .gift-guide__add-btn.is-loading .gift-guide__btn-text {
+    display: none;
+  }
+
+  @keyframes giftSpinner {
+    to { transform: rotate(360deg); }
+  }
+
+  /* =============================================
+     RESPONSIVE — TABLET
+  ============================================= */
+  @media screen and (max-width: 1024px) {
+    .gift-guide__grid {
+      grid-template-columns: repeat(3, 1fr);
+      padding: 0 20px 40px;
+    }
+  }
+
+  /* =============================================
+     RESPONSIVE — MOBILE
+  ============================================= */
+  @media screen and (max-width: 768px) {
+    .gift-guide__hero {
+      padding: 40px 20px;
+      min-height: 320px;
+    }
+
+    .gift-guide__header {
+      padding: 32px 20px 16px;
+    }
+
+    .gift-guide__grid {
+      grid-template-columns: repeat(2, 1fr);
+      padding: 0 0 40px;
+      gap: 0;
+    }
+
+    .gift-guide__flyout {
+      width: 100%;
+      max-width: 100%;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transform: translateY(20px);
+      border-radius: 16px 16px 0 0;
+      max-height: 85vh;
+    }
+
+    .gift-guide__flyout.is-open {
+      transform: translateY(0);
+    }
+
+    .gift-guide__flyout-image-wrap {
+      aspect-ratio: 16/9;
+    }
+
+    .gift-guide__flyout-body {
+      padding: 20px;
+    }
+  }
+</style>
+
+<!-- ============================================
+     HERO SECTION
+============================================= -->
+<div class="gift-guide-section">
+  <div class="gift-guide__hero">
+    <div class="gift-guide__hero-bg"></div>
+    <div class="gift-guide__hero-pattern"></div>
+    <div class="gift-guide__hero-content">
+      <p class="gift-guide__hero-logo">{{ section.settings.store_name | default: 'Tisso Vison' }}</p>
+      <h1 class="gift-guide__hero-title">{{ section.settings.hero_title | default: 'The Gift Guide' }}</h1>
+      <p class="gift-guide__hero-subtitle">{{ section.settings.hero_subtitle | default: 'Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.' }}</p>
+      <a href="#gift-guide-grid" class="gift-guide__hero-btn">
+        {{ section.settings.hero_btn_text | default: 'Choose Gift' }}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============================================
+       SECTION HEADER
+  ============================================= -->
+  <div class="gift-guide__header">
+    <p class="gift-guide__section-label">Collection</p>
+    <h2 class="gift-guide__section-title">{{ section.settings.grid_title | default: 'Tisso vison in the wild' }}</h2>
+  </div>
+
+  <!-- ============================================
+       PRODUCT GRID
+  ============================================= -->
+  <div class="gift-guide__grid" id="gift-guide-grid">
+    {% for block in section.blocks %}
+      {% if block.type == 'product' %}
+        {% assign product = block.settings.product %}
+        {% if product != blank %}
+          <div
+            class="gift-guide__product-card"
+            data-product-handle="{{ product.handle }}"
+            data-product-id="{{ product.id }}"
+            role="button"
+            tabindex="0"
+            aria-label="View {{ product.title }}"
+            {{ block.shopify_attributes }}
+          >
+            {% if product.featured_image %}
+              <img
+                class="gift-guide__product-img"
+                src="{{ product.featured_image | img_url: '600x' }}"
+                alt="{{ product.featured_image.alt | default: product.title }}"
+                loading="lazy"
+                width="600"
+              >
+            {% else %}
+              <div class="gift-guide__product-img" style="background:#e0e0db;"></div>
+            {% endif %}
+            <span class="gift-guide__product-plus" aria-hidden="true">+</span>
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- ============================================
+       FLYOUT OVERLAY
+  ============================================= -->
+  <div class="gift-guide__overlay" id="giftGuideOverlay" role="presentation"></div>
+
+  <!-- ============================================
+       FLYOUT POPUP
+  ============================================= -->
+  <div
+    class="gift-guide__flyout"
+    id="giftGuideFlyout"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Product details"
+  >
+    <button class="gift-guide__flyout-close" id="giftGuideFlyoutClose" aria-label="Close">&#x2715;</button>
+    <div class="gift-guide__flyout-inner">
+      <div class="gift-guide__flyout-image-wrap">
+        <img class="gift-guide__flyout-image" id="flyoutImage" src="" alt="">
+      </div>
+      <div class="gift-guide__flyout-body">
+        <h3 class="gift-guide__flyout-name" id="flyoutName"></h3>
+        <p class="gift-guide__flyout-price" id="flyoutPrice"></p>
+        <p class="gift-guide__flyout-desc" id="flyoutDesc"></p>
+
+        <!-- Color selector -->
+        <span class="gift-guide__flyout-label">Color</span>
+        <div class="gift-guide__color-options" id="flyoutColors"></div>
+
+        <!-- Size selector -->
+        <label class="gift-guide__flyout-label" for="flyoutSize">Size</label>
+        <select class="gift-guide__size-select" id="flyoutSize">
+          <option value="">Choose your size</option>
+        </select>
+
+        <!-- Add to Cart -->
+        <button class="gift-guide__add-btn" id="flyoutAddBtn" type="button">
+          <div class="gift-guide__spinner"></div>
+          <span class="gift-guide__btn-text">
+            Add to Cart
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============================================
+  // STATE
+  // ============================================
+  var state = {
+    currentProduct: null,   // full product JSON
+    selectedColor: null,
+    selectedSize: null,
+    selectedVariantId: null,
+    isSoldOut: false
+  };
+
+  // ============================================
+  // ELEMENTS
+  // ============================================
+  var overlay    = document.getElementById('giftGuideOverlay');
+  var flyout     = document.getElementById('giftGuideFlyout');
+  var closeBtn   = document.getElementById('giftGuideFlyoutClose');
+  var imgEl      = document.getElementById('flyoutImage');
+  var nameEl     = document.getElementById('flyoutName');
+  var priceEl    = document.getElementById('flyoutPrice');
+  var descEl     = document.getElementById('flyoutDesc');
+  var colorsEl   = document.getElementById('flyoutColors');
+  var sizeEl     = document.getElementById('flyoutSize');
+  var addBtn     = document.getElementById('flyoutAddBtn');
+
+  // ============================================
+  // FORMAT MONEY
+  // ============================================
+  function formatMoney(cents) {
+    return (cents / 100).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    });
+  }
+
+  // ============================================
+  // OPEN / CLOSE FLYOUT
+  // ============================================
+  function openFlyout() {
+    overlay.classList.add('is-open');
+    flyout.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+
+  function closeFlyout() {
+    overlay.classList.remove('is-open');
+    flyout.classList.remove('is-open');
+    document.body.style.overflow = '';
+    state.currentProduct = null;
+    state.selectedColor = null;
+    state.selectedSize = null;
+    state.selectedVariantId = null;
+    resetAddBtn();
+  }
+
+  // ============================================
+  // RESET ADD BUTTON
+  // ============================================
+  function resetAddBtn() {
+    addBtn.disabled = false;
+    addBtn.classList.remove('is-loading', 'is-sold-out', 'is-success');
+    addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:16px;height:16px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  }
+
+  // ============================================
+  // FIND VARIANT FROM SELECTED OPTIONS
+  // ============================================
+  function findVariant(product, color, size) {
+    if (!product || !product.variants) return null;
+    return product.variants.find(function(v) {
+      var opts = v.options || [];
+      var hasColor = !color || opts.indexOf(color) !== -1;
+      var hasSize  = !size  || opts.indexOf(size)  !== -1;
+      return hasColor && hasSize;
+    }) || null;
+  }
+
+  // ============================================
+  // CHECK SOLD OUT
+  // Black + White combination = Sold Out
+  // ============================================
+  function checkSoldOut(color) {
+    if (color === 'Black' || color === 'White') {
+      // Check if product has both Black AND White variants
+      if (!state.currentProduct) return false;
+      var colors = getColorOptions(state.currentProduct);
+      var hasBlack = colors.indexOf('Black') !== -1;
+      var hasWhite = colors.indexOf('White') !== -1;
+      if (hasBlack && hasWhite) {
+        return true; // Sold Out when both exist and one is selected
+      }
+    }
+    return false;
+  }
+
+  // ============================================
+  // GET UNIQUE COLOR OPTIONS
+  // ============================================
+  function getColorOptions(product) {
+    var colorOpt = product.options && product.options.find(function(o) {
+      return o.name.toLowerCase() === 'color';
+    });
+    return colorOpt ? colorOpt.values : [];
+  }
+
+  // ============================================
+  // GET UNIQUE SIZE OPTIONS
+  // ============================================
+  function getSizeOptions(product) {
+    var sizeOpt = product.options && product.options.find(function(o) {
+      return o.name.toLowerCase() === 'size';
+    });
+    return sizeOpt ? sizeOpt.values : [];
+  }
+
+  // ============================================
+  // UPDATE VARIANT SELECTION
+  // ============================================
+  function updateVariantSelection() {
+    var variant = findVariant(state.currentProduct, state.selectedColor, state.selectedSize);
+    state.selectedVariantId = variant ? variant.id : null;
+    state.isSoldOut = checkSoldOut(state.selectedColor);
+
+    // Update price
+    if (variant) {
+      priceEl.textContent = formatMoney(variant.price);
+    }
+
+    // Update add button
+    if (state.isSoldOut) {
+      addBtn.disabled = true;
+      addBtn.classList.add('is-sold-out');
+      addBtn.querySelector('.gift-guide__btn-text').textContent = 'Sold Out';
+    } else {
+      addBtn.disabled = false;
+      addBtn.classList.remove('is-sold-out');
+      addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:16px;height:16px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    }
+  }
+
+  // ============================================
+  // RENDER FLYOUT CONTENT
+  // ============================================
+  function renderFlyout(product) {
+    state.currentProduct = product;
+
+    // Image
+    var img = product.featured_image || (product.images && product.images[0]) || '';
+    imgEl.src = img ? img + '&width=600' : '';
+    imgEl.alt = product.title;
+
+    // Name
+    nameEl.textContent = product.title;
+
+    // Price
+    var firstVariant = product.variants && product.variants[0];
+    priceEl.textContent = firstVariant ? formatMoney(firstVariant.price) : '';
+
+    // Description (strip HTML tags)
+    var tempDiv = document.createElement('div');
+    tempDiv.innerHTML = product.description || '';
+    descEl.textContent = tempDiv.textContent || tempDiv.innerText || '';
+
+    // Color options
+    var colors = getColorOptions(product);
+    colorsEl.innerHTML = '';
+    state.selectedColor = colors[0] || null;
+
+    colors.forEach(function(color) {
+      var btn = document.createElement('button');
+      btn.className = 'gift-guide__color-btn' + (color === state.selectedColor ? ' is-selected' : '');
+      btn.textContent = color;
+      btn.setAttribute('type', 'button');
+      btn.setAttribute('data-color', color);
+      btn.addEventListener('click', function() {
+        state.selectedColor = color;
+        document.querySelectorAll('.gift-guide__color-btn').forEach(function(b) {
+          b.classList.toggle('is-selected', b.getAttribute('data-color') === color);
+        });
+        updateVariantSelection();
+      });
+      colorsEl.appendChild(btn);
+    });
+
+    // Size options
+    var sizes = getSizeOptions(product);
+    sizeEl.innerHTML = '<option value="">Choose your size</option>';
+    state.selectedSize = null;
+
+    sizes.forEach(function(size) {
+      var opt = document.createElement('option');
+      opt.value = size;
+      opt.textContent = size;
+      sizeEl.appendChild(opt);
+    });
+
+    sizeEl.addEventListener('change', function() {
+      state.selectedSize = this.value || null;
+      updateVariantSelection();
+    });
+
+    // Initial variant check
+    updateVariantSelection();
+  }
+
+  // ============================================
+  // FETCH PRODUCT DATA FROM SHOPIFY AJAX API
+  // ============================================
+  function fetchProduct(handle) {
+    return fetch('/products/' + handle + '.js')
+      .then(function(res) {
+        if (!res.ok) throw new Error('Product not found');
+        return res.json();
+      });
+  }
+
+  // ============================================
+  // AJAX ADD TO CART
+  // ============================================
+  function addToCart(variantId, quantity) {
+    return fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: variantId, quantity: quantity || 1 })
+    }).then(function(res) {
+      if (!res.ok) throw new Error('Could not add to cart');
+      return res.json();
+    });
+  }
+
+  // ============================================
+  // CARD CLICK HANDLER
+  // ============================================
+  function handleCardClick(e) {
+    var card = e.currentTarget;
+    var handle = card.getAttribute('data-product-handle');
+    if (!handle) return;
+
+    openFlyout();
+    nameEl.textContent = 'Loading...';
+    priceEl.textContent = '';
+    descEl.textContent = '';
+    imgEl.src = card.querySelector('.gift-guide__product-img') ?
+      card.querySelector('.gift-guide__product-img').src : '';
+    colorsEl.innerHTML = '';
+    sizeEl.innerHTML = '<option value="">Choose your size</option>';
+    resetAddBtn();
+
+    fetchProduct(handle)
+      .then(function(product) {
+        renderFlyout(product);
+      })
+      .catch(function(err) {
+        nameEl.textContent = 'Error loading product';
+        console.error('[GiftGuide]', err);
+      });
+  }
+
+  // ============================================
+  // ADD TO CART CLICK HANDLER
+  // ============================================
+  addBtn.addEventListener('click', function() {
+    if (state.isSoldOut || addBtn.disabled) return;
+
+    // Must select size
+    if (!state.selectedSize) {
+      sizeEl.style.borderColor = '#e00';
+      sizeEl.focus();
+      setTimeout(function() { sizeEl.style.borderColor = ''; }, 1500);
+      return;
+    }
+
+    var variant = findVariant(state.currentProduct, state.selectedColor, state.selectedSize);
+    if (!variant) {
+      alert('Please select a valid combination.');
+      return;
+    }
+
+    // Show loading
+    addBtn.classList.add('is-loading');
+    addBtn.disabled = true;
+
+    addToCart(variant.id, 1)
+      .then(function() {
+        addBtn.classList.remove('is-loading');
+        addBtn.classList.add('is-success');
+        addBtn.querySelector('.gift-guide__btn-text').textContent = 'Added!';
+
+        // Update cart count if theme has one
+        fetch('/cart.js')
+          .then(function(r) { return r.json(); })
+          .then(function(cart) {
+            var bubble = document.querySelector('.cart-count-bubble, [data-cart-count], .header__cart-count');
+            if (bubble) bubble.textContent = cart.item_count;
+          });
+
+        // Reset after 2s
+        setTimeout(function() {
+          addBtn.classList.remove('is-success');
+          addBtn.disabled = false;
+          resetAddBtn();
+        }, 2000);
+      })
+      .catch(function(err) {
+        addBtn.classList.remove('is-loading');
+        addBtn.disabled = false;
+        addBtn.querySelector('.gift-guide__btn-text').textContent = 'Try again';
+        console.error('[GiftGuide] Add to cart error:', err);
+      });
+  });
+
+  // ============================================
+  // CLOSE HANDLERS
+  // ============================================
+  closeBtn.addEventListener('click', closeFlyout);
+  overlay.addEventListener('click', closeFlyout);
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && flyout.classList.contains('is-open')) {
+      closeFlyout();
+    }
+  });
+
+  // ============================================
+  // INIT — ATTACH CLICK TO ALL PRODUCT CARDS
+  // ============================================
+  var cards = document.querySelectorAll('.gift-guide__product-card');
+  cards.forEach(function(card) {
+    card.addEventListener('click', handleCardClick);
+    // Keyboard accessibility
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleCardClick(e);
+      }
+    });
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Gift Guide",
+  "tag": "section",
+  "class": "gift-guide-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "store_name",
+      "label": "Store Name (Hero)",
+      "default": "Tisso Vison"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero Title",
+      "default": "The Gift Guide"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subtitle",
+      "label": "Hero Subtitle",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination."
+    },
+    {
+      "type": "text",
+      "id": "hero_btn_text",
+      "label": "Hero Button Text",
+      "default": "Choose Gift"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_image",
+      "label": "Hero Background Image (optional)"
+    },
+    {
+      "type": "text",
+      "id": "grid_title",
+      "label": "Grid Section Title",
+      "default": "Tisso vison in the wild"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Guide",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}

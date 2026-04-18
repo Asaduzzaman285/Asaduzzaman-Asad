@@ -12,6 +12,18 @@
     "gift_guide": {
       "type": "gift-guide",
       "blocks": {
+        "product_4hhACE": {
+          "type": "product",
+          "settings": {
+            "product": "dark-denim-top"
+          }
+        },
+        "product_y3d3wF": {
+          "type": "product",
+          "settings": {
+            "product": "chequered-red-shirt"
+          }
+        },
         "product_1": {
           "type": "product",
           "settings": {
@@ -37,9 +49,27 @@
           }
         }
       },
-      "block_order": ["product_1","product_2","product_3","product_4"],
-      "settings": {}
+      "block_order": [
+        "product_4hhACE",
+        "product_y3d3wF",
+        "product_1",
+        "product_2",
+        "product_3",
+        "product_4"
+      ],
+      "settings": {
+        "store_name": "Tisso Vison",
+        "nav_tagline": "Find the ideal gift for your loved ones.",
+        "hero_title": "The Gift Guide",
+        "hero_subtitle": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.",
+        "hero_btn_text": "Choose Gift",
+        "shop_btn_text": "Shop Now",
+        "sustainability_text": "Sustainable, Ethically Made Clothes in Sizes XXS to 6XL",
+        "grid_title": "Tisso vison in the wild"
+      }
     }
   },
-  "order": ["gift_guide"]
+  "order": [
+    "gift_guide"
+  ]
 }

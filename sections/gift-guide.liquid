@@ -1,88 +1,35 @@
 {% comment %}
-  Gift Guide Section — Pixel perfect match to Figma design
-  - Hero with illustrated gadgets background
-  - Navbar: logo left, tagline center, CTA right
-  - 3-column x 2-row product grid (6 products)
+  Gift Guide Section — Complete Figma Implementation
+  - Hero with illustrated gadgets background (fully editable from customizer)
+  - 3x2 product grid (6 products, selectable from customizer)
   - Side-by-side flyout popup (image left, details right)
-  - AJAX Add to Cart
-  - Sold Out when Black+White variant selected
-  - Fully responsive mobile layout
+  - Dynamic variants from product data
+  - AJAX Add to Cart with animations
+  - Auto-add "Soft Winter Jacket" when Black + Medium variant is added
   - No jQuery, vanilla JS only
+  - No Dawn components used
 {% endcomment %}
 
 <style>
-  .gift-guide-section * {
+  /* ===========================================
+     RESET
+  =========================================== */
+  .gg * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
 
-  .gift-guide-section {
+  .gg {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: #111;
     width: 100%;
   }
 
-  /* =============================================
-     CUSTOM NAVBAR
-  ============================================= */
-  .gift-guide__nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    height: 56px;
-    border-bottom: 1px solid #e0e0e0;
-    background: #fff;
-    position: relative;
-    z-index: 10;
-  }
-
-  .gift-guide__nav-logo {
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #111;
-    text-decoration: none;
-  }
-
-  .gift-guide__nav-tagline {
-    font-size: 13px;
-    color: #555;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-
-  .gift-guide__nav-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #FFD700;
-    color: #111;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 10px 20px;
-    text-decoration: none;
-    transition: background 0.2s;
-    white-space: nowrap;
-  }
-
-  .gift-guide__nav-cta:hover { background: #f0c800; }
-
-  .gift-guide__nav-cta svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  /* =============================================
+  /* ===========================================
      HERO
-  ============================================= */
-  .gift-guide__hero {
+  =========================================== */
+  .gg__hero {
     position: relative;
     width: 100%;
     min-height: 480px;
@@ -92,25 +39,23 @@
     align-items: flex-end;
   }
 
-  .gift-guide__hero-illustration {
+  .gg__hero-bg {
     position: absolute;
     inset: 0;
     background-image: url('https://cdn.shopify.com/s/files/1/0672/3711/8050/files/Frame_1957.png?v=1776530764');
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
-    width: 100%;
-    height: 100%;
   }
 
-  .gift-guide__hero-content {
+  .gg__hero-content {
     position: relative;
     z-index: 2;
     padding: 40px 40px 48px;
-    max-width: 520px;
+    max-width: 480px;
   }
 
-  .gift-guide__hero-title {
+  .gg__hero-title {
     font-size: clamp(40px, 5vw, 72px);
     font-weight: 800;
     line-height: 1.05;
@@ -119,15 +64,16 @@
     margin-bottom: 16px;
   }
 
-  .gift-guide__hero-subtitle {
+  .gg__hero-subtitle {
     font-size: 14px;
     color: #333;
     line-height: 1.6;
     margin-bottom: 28px;
-    max-width: 380px;
+    max-width: 360px;
   }
 
-  .gift-guide__hero-btn {
+  /* Button with animation */
+  .gg__hero-btn {
     display: inline-flex;
     align-items: center;
     gap: 12px;
@@ -138,24 +84,45 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     padding: 14px 28px;
-    border: none;
+    border: 2px solid #111;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s ease, background 0.3s ease;
   }
 
-  .gift-guide__hero-btn:hover {
-    background: #333;
-    transform: translateX(3px);
+  .gg__hero-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #FFD700;
+    transform: translateX(-101%);
+    transition: transform 0.3s ease;
+    z-index: 0;
   }
 
-  .gift-guide__hero-btn svg {
+  .gg__hero-btn:hover::before { transform: translateX(0); }
+  .gg__hero-btn:hover { color: #111; }
+
+  .gg__hero-btn span,
+  .gg__hero-btn svg {
+    position: relative;
+    z-index: 1;
+  }
+
+  .gg__hero-btn svg {
     width: 16px;
     height: 16px;
+    transition: transform 0.2s ease;
   }
 
-  /* Sustainability bar */
-  .gift-guide__sustainability {
+  .gg__hero-btn:hover svg { transform: translateX(4px); }
+
+  /* ===========================================
+     SUSTAINABILITY BAR
+  =========================================== */
+  .gg__bar {
     text-align: center;
     padding: 12px 40px;
     font-size: 11px;
@@ -168,32 +135,32 @@
     background: #fff;
   }
 
-  /* =============================================
-     SECTION HEADER
-  ============================================= */
-  .gift-guide__header {
+  /* ===========================================
+     GRID HEADER
+  =========================================== */
+  .gg__header {
     padding: 48px 40px 24px;
   }
 
-  .gift-guide__section-title {
+  .gg__header-title {
     font-size: clamp(24px, 3vw, 40px);
     font-weight: 800;
     letter-spacing: -0.02em;
     color: #111;
   }
 
-  /* =============================================
-     PRODUCT GRID — 3 columns
-  ============================================= */
-  .gift-guide__grid {
+  /* ===========================================
+     PRODUCT GRID — 3 columns x 2 rows
+  =========================================== */
+  .gg__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2px;
-    padding: 0 0 60px;
-    background: #e0e0e0;
+    background: #ddd;
+    padding-bottom: 60px;
   }
 
-  .gift-guide__product-card {
+  .gg__card {
     position: relative;
     cursor: pointer;
     overflow: hidden;
@@ -201,20 +168,7 @@
     background: #f0f0ec;
   }
 
-  .gift-guide__product-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0);
-    transition: background 0.3s ease;
-    pointer-events: none;
-  }
-
-  .gift-guide__product-card:hover::after {
-    background: rgba(0,0,0,0.06);
-  }
-
-  .gift-guide__product-img {
+  .gg__card-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -222,11 +176,19 @@
     transition: transform 0.5s ease;
   }
 
-  .gift-guide__product-card:hover .gift-guide__product-img {
-    transform: scale(1.04);
+  .gg__card:hover .gg__card-img { transform: scale(1.04); }
+
+  .gg__card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background 0.3s ease;
+    pointer-events: none;
   }
 
-  .gift-guide__product-plus {
+  .gg__card:hover .gg__card-overlay { background: rgba(0,0,0,0.06); }
+
+  .gg__card-plus {
     position: absolute;
     bottom: 14px;
     right: 14px;
@@ -238,289 +200,334 @@
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    font-weight: 300;
     color: #111;
     opacity: 0;
     transform: scale(0.8);
     transition: opacity 0.2s, transform 0.2s;
     z-index: 2;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    pointer-events: none;
   }
 
-  .gift-guide__product-card:hover .gift-guide__product-plus {
-    opacity: 1;
-    transform: scale(1);
-  }
+  .gg__card:hover .gg__card-plus { opacity: 1; transform: scale(1); }
 
-  /* =============================================
-     FLYOUT OVERLAY
-  ============================================= */
-  .gift-guide__overlay {
+  /* ===========================================
+     OVERLAY
+  =========================================== */
+  .gg__overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0,0,0,0.5);
     z-index: 9998;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
   }
 
-  .gift-guide__overlay.is-open {
-    opacity: 1;
-    pointer-events: all;
-  }
+  .gg__overlay.open { opacity: 1; pointer-events: all; }
 
-  /* =============================================
-     FLYOUT POPUP — side by side layout
-  ============================================= */
-  .gift-guide__flyout {
+  /* ===========================================
+     FLYOUT POPUP — image left, details right
+  =========================================== */
+  .gg__flyout {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -48%) scale(0.96);
+    transform: translate(-50%, -46%) scale(0.95);
     z-index: 9999;
     background: #fff;
     width: 90%;
-    max-width: 680px;
+    max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.22);
   }
 
-  .gift-guide__flyout.is-open {
+  .gg__flyout.open {
     opacity: 1;
     pointer-events: all;
     transform: translate(-50%, -50%) scale(1);
   }
 
-  .gift-guide__flyout-inner {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    min-height: 400px;
-  }
-
-  .gift-guide__flyout-close {
+  .gg__flyout-close {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 28px;
-    height: 28px;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
     background: none;
     border: none;
     cursor: pointer;
+    font-size: 22px;
+    color: #111;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    color: #111;
-    z-index: 10;
     line-height: 1;
-    padding: 0;
+    transition: opacity 0.2s;
   }
 
-  .gift-guide__flyout-close:hover { opacity: 0.6; }
+  .gg__flyout-close:hover { opacity: 0.5; }
 
-  .gift-guide__flyout-image-wrap {
-    width: 100%;
-    height: 100%;
+  .gg__flyout-inner {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 420px;
+  }
+
+  /* Left: image */
+  .gg__flyout-img-wrap {
     overflow: hidden;
     background: #f0f0ec;
   }
 
-  .gift-guide__flyout-image {
+  .gg__flyout-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
 
-  .gift-guide__flyout-body {
-    padding: 24px 28px;
+  /* Right: details */
+  .gg__flyout-body {
+    padding: 28px;
     display: flex;
     flex-direction: column;
   }
 
-  .gift-guide__flyout-name {
-    font-size: 18px;
+  .gg__flyout-name {
+    font-size: 20px;
     font-weight: 800;
-    letter-spacing: -0.01em;
     color: #111;
     margin-bottom: 6px;
-    padding-right: 30px;
+    padding-right: 28px;
+    line-height: 1.2;
   }
 
-  .gift-guide__flyout-price {
-    font-size: 15px;
+  .gg__flyout-price {
+    font-size: 16px;
     font-weight: 600;
     color: #111;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
-  .gift-guide__flyout-desc {
-    font-size: 12px;
+  .gg__flyout-desc {
+    font-size: 13px;
     color: #666;
-    line-height: 1.6;
-    margin-bottom: 18px;
+    line-height: 1.65;
+    margin-bottom: 20px;
   }
 
-  .gift-guide__flyout-label {
+  .gg__flyout-label {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #999;
+    color: #aaa;
     margin-bottom: 8px;
     display: block;
   }
 
-  .gift-guide__color-options {
+  /* Color options */
+  .gg__colors {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
-  .gift-guide__color-btn {
-    padding: 6px 14px;
+  .gg__color-btn {
+    padding: 7px 16px;
     border: 1.5px solid #ddd;
     background: #fff;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     color: #111;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
   }
 
-  .gift-guide__color-btn:hover { border-color: #111; }
+  .gg__color-btn:hover { border-color: #111; }
 
-  .gift-guide__color-btn.is-selected {
+  .gg__color-btn.active {
     border-color: #111;
     background: #111;
     color: #fff;
   }
 
-  .gift-guide__size-select {
+  /* Size dropdown */
+  .gg__size-select {
     width: 100%;
-    padding: 10px 14px;
+    padding: 11px 14px;
     border: 1.5px solid #ddd;
     background: #fff;
     font-size: 13px;
     color: #111;
     cursor: pointer;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23111' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
+    background-position: right 14px center;
+    transition: border-color 0.2s;
   }
 
-  .gift-guide__size-select:focus {
-    outline: none;
-    border-color: #111;
-  }
+  .gg__size-select:focus { outline: none; border-color: #111; }
+  .gg__size-select.error { border-color: #e00; }
 
-  .gift-guide__add-btn {
+  /* Add to cart button with animation */
+  .gg__add-btn {
     width: 100%;
-    padding: 14px;
+    padding: 15px;
     background: #111;
     color: #fff;
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    border: none;
+    border: 2px solid #111;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s ease, background 0.3s ease;
     margin-top: auto;
   }
 
-  .gift-guide__add-btn:hover:not(:disabled) { background: #333; }
+  .gg__add-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #2a7a4b;
+    transform: translateY(101%);
+    transition: transform 0.35s ease;
+    z-index: 0;
+  }
 
-  .gift-guide__add-btn:disabled,
-  .gift-guide__add-btn.is-sold-out {
+  .gg__add-btn:hover:not(:disabled)::before { transform: translateY(0); }
+
+  .gg__add-btn span,
+  .gg__add-btn svg,
+  .gg__add-btn .gg__spinner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .gg__add-btn:disabled {
     background: #ccc;
+    border-color: #ccc;
     color: #888;
     cursor: not-allowed;
   }
 
-  .gift-guide__add-btn.is-success { background: #2a7a4b; }
+  .gg__add-btn:disabled::before { display: none; }
 
-  .gift-guide__spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid rgba(255,255,255,0.3);
+  .gg__add-btn.success {
+    background: #2a7a4b;
+    border-color: #2a7a4b;
+  }
+
+  .gg__add-btn svg {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.2s ease;
+  }
+
+  .gg__add-btn:hover:not(:disabled) svg { transform: translateX(4px); }
+
+  /* Spinner */
+  .gg__spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255,255,255,0.35);
     border-top-color: #fff;
     border-radius: 50%;
-    animation: giftSpinner 0.7s linear infinite;
+    animation: ggSpin 0.7s linear infinite;
     display: none;
   }
 
-  .gift-guide__add-btn.is-loading .gift-guide__spinner { display: block; }
-  .gift-guide__add-btn.is-loading .gift-guide__btn-text { display: none; }
+  .gg__add-btn.loading .gg__spinner { display: block; }
+  .gg__add-btn.loading .gg__btn-text { display: none; }
 
-  @keyframes giftSpinner {
-    to { transform: rotate(360deg); }
+  @keyframes ggSpin { to { transform: rotate(360deg); } }
+
+  /* ===========================================
+     NOTIFICATION TOAST
+  =========================================== */
+  .gg__toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #111;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 24px;
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
   }
 
-  /* TABLET */
-  @media screen and (max-width: 1024px) {
-    .gift-guide__nav-tagline { display: none; }
+  .gg__toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 
-  /* MOBILE */
+  /* ===========================================
+     RESPONSIVE MOBILE
+  =========================================== */
   @media screen and (max-width: 768px) {
-    .gift-guide__nav { padding: 0 16px; }
-    .gift-guide__nav-tagline { display: none; }
-    .gift-guide__hero { min-height: 360px; }
-    .gift-guide__hero-content { padding: 24px 20px 32px; }
-    .gift-guide__sustainability { padding: 10px 20px; font-size: 9px; }
-    .gift-guide__header { padding: 32px 20px 16px; }
-    .gift-guide__grid { grid-template-columns: repeat(2, 1fr); }
-    .gift-guide__flyout {
+    .gg__hero { min-height: 340px; }
+    .gg__hero-content { padding: 24px 20px 32px; }
+    .gg__bar { padding: 10px 16px; font-size: 9px; }
+    .gg__header { padding: 28px 16px 16px; }
+    .gg__grid { grid-template-columns: repeat(2, 1fr); }
+
+    .gg__flyout {
       width: 100%;
       max-width: 100%;
       top: auto;
       bottom: 0;
       left: 0;
       right: 0;
-      transform: translateY(20px);
-      border-radius: 16px 16px 0 0;
+      transform: translateY(30px);
+      border-radius: 14px 14px 0 0;
       max-height: 88vh;
     }
-    .gift-guide__flyout.is-open { transform: translateY(0); }
-    .gift-guide__flyout-inner { grid-template-columns: 1fr; }
-    .gift-guide__flyout-image-wrap { height: 220px; }
+
+    .gg__flyout.open { transform: translateY(0); }
+
+    .gg__flyout-inner {
+      grid-template-columns: 1fr;
+    }
+
+    .gg__flyout-img-wrap { height: 200px; }
+    .gg__flyout-body { padding: 20px; }
   }
 </style>
 
-<div class="gift-guide-section">
-  <!-- NAVBAR -->
-  <nav class="gift-guide__nav">
-    <a href="/" class="gift-guide__nav-logo">{{ section.settings.store_name | default: 'Tisso Vison' }}</a>
-    <span class="gift-guide__nav-tagline">{{ section.settings.nav_tagline | default: 'Find the ideal gift for your loved ones.' }}</span>
-    <a href="#gift-guide-grid" class="gift-guide__nav-cta">
-      {{ section.settings.hero_btn_text | default: 'Choose Gift' }}
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
-  </nav>
+<div class="gg">
 
-  <!-- HERO -->
-  <div class="gift-guide__hero">
-    <div class="gift-guide__hero-illustration"></div>
-    <div class="gift-guide__hero-content">
-      <h1 class="gift-guide__hero-title">{{ section.settings.hero_title | default: 'The Gift Guide' }}</h1>
-      <p class="gift-guide__hero-subtitle">{{ section.settings.hero_subtitle | default: 'Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.' }}</p>
-      <a href="#gift-guide-grid" class="gift-guide__hero-btn">
-        {{ section.settings.shop_btn_text | default: 'Shop Now' }}
+  <!-- ===========================================
+       HERO SECTION
+  =========================================== -->
+  <div class="gg__hero">
+    <div class="gg__hero-bg"></div>
+    <div class="gg__hero-content">
+      <h1 class="gg__hero-title">{{ section.settings.hero_title | default: 'The Gift Guide' }}</h1>
+      <p class="gg__hero-subtitle">{{ section.settings.hero_subtitle | default: 'Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.' }}</p>
+      <a href="#gg-grid" class="gg__hero-btn">
+        <span>{{ section.settings.hero_btn_label | default: 'Shop Now' }}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
@@ -528,164 +535,442 @@
     </div>
   </div>
 
-  <!-- SUSTAINABILITY BAR -->
-  <div class="gift-guide__sustainability">
-    {{ section.settings.sustainability_text | default: 'Sustainable, Ethically Made Clothes in Sizes XXS to 6XL' }}
+  <!-- Sustainability Bar -->
+  <div class="gg__bar">{{ section.settings.bar_text | default: 'Sustainable, Ethically Made Clothes in Sizes XXS to 6XL' }}</div>
+
+  <!-- Grid Header -->
+  <div class="gg__header">
+    <h2 class="gg__header-title">{{ section.settings.grid_title | default: 'Tisso vison in the wild' }}</h2>
   </div>
 
-  <!-- SECTION HEADER -->
-  <div class="gift-guide__header">
-    <h2 class="gift-guide__section-title">{{ section.settings.grid_title | default: 'Tisso vison in the wild' }}</h2>
-  </div>
-
-  <!-- PRODUCT GRID -->
-  <div class="gift-guide__grid" id="gift-guide-grid">
+  <!-- ===========================================
+       PRODUCT GRID
+  =========================================== -->
+  <div class="gg__grid" id="gg-grid">
     {% for block in section.blocks %}
       {% if block.type == 'product' %}
-        {% assign product = block.settings.product %}
-        {% if product != blank %}
+        {% assign p = block.settings.product %}
+        {% if p != blank %}
           <div
-            class="gift-guide__product-card"
-            data-product-handle="{{ product.handle }}"
-            data-product-id="{{ product.id }}"
+            class="gg__card"
+            data-handle="{{ p.handle }}"
             role="button"
             tabindex="0"
-            aria-label="View {{ product.title }}"
+            aria-label="View {{ p.title }}"
             {{ block.shopify_attributes }}
           >
-            {% if product.featured_image %}
+            {% if p.featured_image %}
               <img
-                class="gift-guide__product-img"
-                src="{{ product.featured_image | img_url: '600x' }}"
-                alt="{{ product.featured_image.alt | default: product.title }}"
+                class="gg__card-img"
+                src="{{ p.featured_image | img_url: '600x' }}"
+                alt="{{ p.featured_image.alt | default: p.title }}"
                 loading="lazy"
-                width="600"
               >
             {% else %}
-              <div class="gift-guide__product-img" style="background:#e0e0db;"></div>
+              <div class="gg__card-img" style="background:#e0e0db;min-height:200px;"></div>
             {% endif %}
-            <span class="gift-guide__product-plus" aria-hidden="true">+</span>
+            <div class="gg__card-overlay"></div>
+            <span class="gg__card-plus" aria-hidden="true">+</span>
           </div>
         {% endif %}
       {% endif %}
     {% endfor %}
   </div>
 
-  <!-- OVERLAY -->
-  <div class="gift-guide__overlay" id="giftGuideOverlay" role="presentation"></div>
+  <!-- Overlay -->
+  <div class="gg__overlay" id="ggOverlay"></div>
 
-  <!-- FLYOUT POPUP -->
-  <div class="gift-guide__flyout" id="giftGuideFlyout" role="dialog" aria-modal="true" aria-label="Product details">
-    <button class="gift-guide__flyout-close" id="giftGuideFlyoutClose" aria-label="Close">&#x2715;</button>
-    <div class="gift-guide__flyout-inner">
-      <div class="gift-guide__flyout-image-wrap">
-        <img class="gift-guide__flyout-image" id="flyoutImage" src="" alt="">
+  <!-- ===========================================
+       FLYOUT POPUP
+  =========================================== -->
+  <div class="gg__flyout" id="ggFlyout" role="dialog" aria-modal="true" aria-label="Product details">
+    <button class="gg__flyout-close" id="ggClose" aria-label="Close">&#x2715;</button>
+    <div class="gg__flyout-inner">
+      <!-- Left: image -->
+      <div class="gg__flyout-img-wrap">
+        <img class="gg__flyout-img" id="ggImg" src="" alt="">
       </div>
-      <div class="gift-guide__flyout-body">
-        <h3 class="gift-guide__flyout-name" id="flyoutName"></h3>
-        <p class="gift-guide__flyout-price" id="flyoutPrice"></p>
-        <p class="gift-guide__flyout-desc" id="flyoutDesc"></p>
-        <span class="gift-guide__flyout-label">Color</span>
-        <div class="gift-guide__color-options" id="flyoutColors"></div>
-        <label class="gift-guide__flyout-label" for="flyoutSize">Size</label>
-        <select class="gift-guide__size-select" id="flyoutSize">
+      <!-- Right: details -->
+      <div class="gg__flyout-body">
+        <h3 class="gg__flyout-name" id="ggName">Loading...</h3>
+        <p class="gg__flyout-price" id="ggPrice"></p>
+        <p class="gg__flyout-desc" id="ggDesc"></p>
+
+        <span class="gg__flyout-label">Color</span>
+        <div class="gg__colors" id="ggColors"></div>
+
+        <label class="gg__flyout-label" for="ggSize">Size</label>
+        <select class="gg__size-select" id="ggSize">
           <option value="">Choose your size</option>
         </select>
-        <button class="gift-guide__add-btn" id="flyoutAddBtn" type="button">
-          <div class="gift-guide__spinner"></div>
-          <span class="gift-guide__btn-text">Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:14px;height:14px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+
+        <button class="gg__add-btn" id="ggAddBtn" type="button" disabled>
+          <div class="gg__spinner"></div>
+          <span class="gg__btn-text">
+            Add to Cart
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
         </button>
       </div>
     </div>
   </div>
+
+  <!-- Toast notification -->
+  <div class="gg__toast" id="ggToast"></div>
+
 </div>
 
 <script>
-(function() {
+(function () {
   'use strict';
-  var state = { currentProduct: null, selectedColor: null, selectedSize: null, selectedVariantId: null, isSoldOut: false };
-  var overlay  = document.getElementById('giftGuideOverlay');
-  var flyout   = document.getElementById('giftGuideFlyout');
-  var closeBtn = document.getElementById('giftGuideFlyoutClose');
-  var imgEl    = document.getElementById('flyoutImage');
-  var nameEl   = document.getElementById('flyoutName');
-  var priceEl  = document.getElementById('flyoutPrice');
-  var descEl   = document.getElementById('flyoutDesc');
-  var colorsEl = document.getElementById('flyoutColors');
-  var sizeEl   = document.getElementById('flyoutSize');
-  var addBtn   = document.getElementById('flyoutAddBtn');
 
-  function formatMoney(cents) { return (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
-  function openFlyout() { overlay.classList.add('is-open'); flyout.classList.add('is-open'); document.body.style.overflow = 'hidden'; closeBtn.focus(); }
-  function closeFlyout() { overlay.classList.remove('is-open'); flyout.classList.remove('is-open'); document.body.style.overflow = ''; state.currentProduct = null; state.selectedColor = null; state.selectedSize = null; state.selectedVariantId = null; resetAddBtn(); }
-  function resetAddBtn() { addBtn.disabled = false; addBtn.classList.remove('is-loading', 'is-sold-out', 'is-success'); addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:14px;height:14px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
-  function findVariant(product, color, size) { if (!product || !product.variants) return null; return product.variants.find(function(v) { var opts = v.options || []; return (!color || opts.indexOf(color) !== -1) && (!size || opts.indexOf(size) !== -1); }) || null; }
-  function getColorOptions(product) { var o = product.options && product.options.find(function(o) { return o.name.toLowerCase() === 'color'; }); return o ? o.values : []; }
-  function getSizeOptions(product) { var o = product.options && product.options.find(function(o) { return o.name.toLowerCase() === 'size'; }); return o ? o.values : []; }
-  function checkSoldOut(color) { if (!state.currentProduct || (color !== 'Black' && color !== 'White')) return false; var colors = getColorOptions(state.currentProduct); return colors.indexOf('Black') !== -1 && colors.indexOf('White') !== -1; }
+  /* ==========================================
+     STATE
+  ========================================== */
+  var state = {
+    product: null,
+    color: null,
+    size: null
+  };
 
-  function updateVariantSelection() {
-    var variant = findVariant(state.currentProduct, state.selectedColor, state.selectedSize);
-    state.selectedVariantId = variant ? variant.id : null;
-    state.isSoldOut = checkSoldOut(state.selectedColor);
-    if (variant) priceEl.textContent = formatMoney(variant.price);
-    if (state.isSoldOut) { addBtn.disabled = true; addBtn.classList.add('is-sold-out'); addBtn.querySelector('.gift-guide__btn-text').textContent = 'Sold Out'; }
-    else { addBtn.disabled = false; addBtn.classList.remove('is-sold-out'); addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:14px;height:14px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
+  /* ==========================================
+     ELEMENTS
+  ========================================== */
+  var overlay = document.getElementById('ggOverlay');
+  var flyout  = document.getElementById('ggFlyout');
+  var closeEl = document.getElementById('ggClose');
+  var imgEl   = document.getElementById('ggImg');
+  var nameEl  = document.getElementById('ggName');
+  var priceEl = document.getElementById('ggPrice');
+  var descEl  = document.getElementById('ggDesc');
+  var colorsEl= document.getElementById('ggColors');
+  var sizeEl  = document.getElementById('ggSize');
+  var addBtn  = document.getElementById('ggAddBtn');
+  var toast   = document.getElementById('ggToast');
+
+  /* ==========================================
+     HELPERS
+  ========================================== */
+  function money(cents) {
+    return '$' + (cents / 100).toFixed(2);
   }
 
-  function renderFlyout(product) {
-    state.currentProduct = product;
-    var img = product.featured_image || (product.images && product.images[0]) || '';
-    imgEl.src = img ? img + '&width=600' : ''; imgEl.alt = product.title;
-    nameEl.textContent = product.title;
-    var fv = product.variants && product.variants[0];
-    priceEl.textContent = fv ? formatMoney(fv.price) : '';
-    var d = document.createElement('div'); d.innerHTML = product.description || ''; descEl.textContent = d.textContent || d.innerText || '';
-    var colors = getColorOptions(product); colorsEl.innerHTML = ''; state.selectedColor = colors[0] || null;
-    colors.forEach(function(color) {
-      var btn = document.createElement('button');
-      btn.className = 'gift-guide__color-btn' + (color === state.selectedColor ? ' is-selected' : '');
-      btn.textContent = color; btn.setAttribute('type', 'button'); btn.setAttribute('data-color', color);
-      btn.addEventListener('click', function() { state.selectedColor = color; document.querySelectorAll('.gift-guide__color-btn').forEach(function(b) { b.classList.toggle('is-selected', b.getAttribute('data-color') === color); }); updateVariantSelection(); });
-      colorsEl.appendChild(btn);
+  function showToast(msg, duration) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function () { toast.classList.remove('show'); }, duration || 3000);
+  }
+
+  function getOption(product, optionName) {
+    var opt = product.options.find(function (o) {
+      return o.name.toLowerCase() === optionName.toLowerCase();
     });
-    var sizes = getSizeOptions(product); sizeEl.innerHTML = '<option value="">Choose your size</option>'; state.selectedSize = null;
-    sizes.forEach(function(size) { var opt = document.createElement('option'); opt.value = size; opt.textContent = size; sizeEl.appendChild(opt); });
-    sizeEl.addEventListener('change', function() { state.selectedSize = this.value || null; updateVariantSelection(); });
-    updateVariantSelection();
+    return opt ? opt.values : [];
   }
 
-  function fetchProduct(handle) { return fetch('/products/' + handle + '.js').then(function(res) { if (!res.ok) throw new Error('Not found'); return res.json(); }); }
-  function addToCart(variantId, qty) { return fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: variantId, quantity: qty || 1 }) }).then(function(res) { if (!res.ok) throw new Error('Cart error'); return res.json(); }); }
-
-  function handleCardClick(e) {
-    var card = e.currentTarget; var handle = card.getAttribute('data-product-handle'); if (!handle) return;
-    openFlyout(); nameEl.textContent = 'Loading...'; priceEl.textContent = ''; descEl.textContent = '';
-    imgEl.src = card.querySelector('.gift-guide__product-img') ? card.querySelector('.gift-guide__product-img').src : '';
-    colorsEl.innerHTML = ''; sizeEl.innerHTML = '<option value="">Choose your size</option>'; resetAddBtn();
-    fetchProduct(handle).then(renderFlyout).catch(function(err) { nameEl.textContent = 'Error loading product'; console.error('[GiftGuide]', err); });
+  function findVariant(product, color, size) {
+    return product.variants.find(function (v) {
+      var opts = v.options;
+      var matchColor = !color || opts.indexOf(color) !== -1;
+      var matchSize  = !size  || opts.indexOf(size)  !== -1;
+      return matchColor && matchSize;
+    }) || null;
   }
 
-  addBtn.addEventListener('click', function() {
-    if (state.isSoldOut || addBtn.disabled) return;
-    if (!state.selectedSize) { sizeEl.style.borderColor = '#e00'; sizeEl.focus(); setTimeout(function() { sizeEl.style.borderColor = ''; }, 1500); return; }
-    var variant = findVariant(state.currentProduct, state.selectedColor, state.selectedSize);
-    if (!variant) { alert('Please select a valid combination.'); return; }
-    addBtn.classList.add('is-loading'); addBtn.disabled = true;
-    addToCart(variant.id, 1).then(function() {
-      addBtn.classList.remove('is-loading'); addBtn.classList.add('is-success'); addBtn.querySelector('.gift-guide__btn-text').textContent = 'Added!';
-      fetch('/cart.js').then(function(r) { return r.json(); }).then(function(cart) { var b = document.querySelector('.cart-count-bubble, [data-cart-count], .header__cart-count'); if (b) b.textContent = cart.item_count; });
-      setTimeout(function() { addBtn.classList.remove('is-success'); addBtn.disabled = false; resetAddBtn(); }, 2000);
-    }).catch(function(err) { addBtn.classList.remove('is-loading'); addBtn.disabled = false; addBtn.querySelector('.gift-guide__btn-text').textContent = 'Try again'; console.error('[GiftGuide]', err); });
+  /* ==========================================
+     OPEN / CLOSE
+  ========================================== */
+  function openFlyout() {
+    overlay.classList.add('open');
+    flyout.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeFlyout() {
+    overlay.classList.remove('open');
+    flyout.classList.remove('open');
+    document.body.style.overflow = '';
+    resetBtn();
+    state.product = null;
+    state.color = null;
+    state.size = null;
+  }
+
+  /* ==========================================
+     RESET BUTTON
+  ========================================== */
+  function resetBtn() {
+    addBtn.disabled = true;
+    addBtn.classList.remove('loading', 'success');
+    addBtn.querySelector('.gg__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:15px;height:15px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  }
+
+  /* ==========================================
+     UPDATE VARIANT UI
+  ========================================== */
+  function updateVariant() {
+    if (!state.product) return;
+    var variant = findVariant(state.product, state.color, state.size);
+
+    /* Update price */
+    if (variant) {
+      priceEl.textContent = money(variant.price);
+    }
+
+    /* Enable/disable add button */
+    if (state.color && state.size && variant) {
+      addBtn.disabled = false;
+    } else {
+      addBtn.disabled = true;
+    }
+  }
+
+  /* ==========================================
+     RENDER FLYOUT
+  ========================================== */
+  function renderFlyout(product) {
+    state.product = product;
+    state.color = null;
+    state.size = null;
+
+    /* Image */
+    var imgSrc = product.featured_image
+      ? product.featured_image + '&width=600'
+      : '';
+    imgEl.src = imgSrc;
+    imgEl.alt = product.title;
+
+    /* Name */
+    nameEl.textContent = product.title;
+
+    /* Price — show first variant price */
+    var fv = product.variants[0];
+    priceEl.textContent = fv ? money(fv.price) : '';
+
+    /* Description — strip HTML */
+    var tmp = document.createElement('div');
+    tmp.innerHTML = product.description || '';
+    descEl.textContent = tmp.textContent || tmp.innerText || '';
+
+    /* Color options — dynamic from product */
+    var colors = getOption(product, 'color');
+    colorsEl.innerHTML = '';
+
+    if (colors.length > 0) {
+      colors.forEach(function (color) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'gg__color-btn';
+        btn.textContent = color;
+        btn.dataset.color = color;
+        btn.addEventListener('click', function () {
+          state.color = color;
+          document.querySelectorAll('.gg__color-btn').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.color === color);
+          });
+          updateVariant();
+        });
+        colorsEl.appendChild(btn);
+      });
+    } else {
+      /* No color option — auto-select null */
+      state.color = '';
+    }
+
+    /* Size options — dynamic from product */
+    var sizes = getOption(product, 'size');
+    sizeEl.innerHTML = '<option value="">Choose your size</option>';
+
+    sizes.forEach(function (size) {
+      var opt = document.createElement('option');
+      opt.value = size;
+      opt.textContent = size;
+      sizeEl.appendChild(opt);
+    });
+
+    /* Reset size state */
+    state.size = null;
+
+    /* Re-bind size change */
+    sizeEl.onchange = function () {
+      state.size = this.value || null;
+      sizeEl.classList.remove('error');
+      updateVariant();
+    };
+
+    resetBtn();
+    updateVariant();
+  }
+
+  /* ==========================================
+     FETCH PRODUCT
+  ========================================== */
+  function fetchProduct(handle) {
+    return fetch('/products/' + handle + '.js')
+      .then(function (res) {
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
+      });
+  }
+
+  /* ==========================================
+     AJAX ADD TO CART
+  ========================================== */
+  function ajaxAddToCart(variantId, qty) {
+    return fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: variantId, quantity: qty || 1 })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Cart error');
+      return res.json();
+    });
+  }
+
+  /* ==========================================
+     FETCH VARIANT ID BY HANDLE + OPTIONS
+     Used to auto-add Soft Winter Jacket
+  ========================================== */
+  function fetchVariantId(handle, color, size) {
+    return fetch('/products/' + handle + '.js')
+      .then(function (res) { return res.json(); })
+      .then(function (product) {
+        var variant = findVariant(product, color, size);
+        return variant ? variant.id : null;
+      });
+  }
+
+  /* ==========================================
+     UPDATE CART COUNT IN HEADER
+  ========================================== */
+  function refreshCartCount() {
+    fetch('/cart.js')
+      .then(function (r) { return r.json(); })
+      .then(function (cart) {
+        var bubbles = document.querySelectorAll(
+          '.cart-count-bubble, [data-cart-count], .header__cart-count, .cart-icon-bubble'
+        );
+        bubbles.forEach(function (b) { b.textContent = cart.item_count; });
+      });
+  }
+
+  /* ==========================================
+     CARD CLICK
+  ========================================== */
+  function onCardClick(e) {
+    var card = e.currentTarget;
+    var handle = card.dataset.handle;
+    if (!handle) return;
+
+    /* Show flyout immediately with loading state */
+    nameEl.textContent = 'Loading...';
+    priceEl.textContent = '';
+    descEl.textContent = '';
+    imgEl.src = '';
+    colorsEl.innerHTML = '';
+    sizeEl.innerHTML = '<option value="">Choose your size</option>';
+    resetBtn();
+    openFlyout();
+
+    fetchProduct(handle)
+      .then(renderFlyout)
+      .catch(function (err) {
+        nameEl.textContent = 'Could not load product.';
+        console.error('[GiftGuide]', err);
+      });
+  }
+
+  /* ==========================================
+     ADD TO CART CLICK
+  ========================================== */
+  addBtn.addEventListener('click', function () {
+    if (addBtn.disabled) return;
+
+    /* Validate size */
+    if (!state.size) {
+      sizeEl.classList.add('error');
+      sizeEl.focus();
+      setTimeout(function () { sizeEl.classList.remove('error'); }, 1500);
+      return;
+    }
+
+    var variant = findVariant(state.product, state.color, state.size);
+    if (!variant) {
+      showToast('Please select a valid variant combination.');
+      return;
+    }
+
+    /* Loading state */
+    addBtn.classList.add('loading');
+    addBtn.disabled = true;
+
+    /* Add primary product */
+    ajaxAddToCart(variant.id, 1)
+      .then(function () {
+
+        /* ==========================================
+           ⚠️ AUTO-ADD SOFT WINTER JACKET
+           When color = Black AND size = M (Medium)
+        ========================================== */
+        var shouldAutoAdd = (state.color === 'Black' && state.size === 'M');
+
+        if (shouldAutoAdd) {
+          return fetchVariantId('soft-winter-jacket', null, null)
+            .then(function (jacketVariantId) {
+              if (jacketVariantId) {
+                return ajaxAddToCart(jacketVariantId, 1)
+                  .then(function () {
+                    showToast('"Soft Winter Jacket" was automatically added to your cart!', 4000);
+                  });
+              }
+            });
+        }
+      })
+      .then(function () {
+        addBtn.classList.remove('loading');
+        addBtn.classList.add('success');
+        addBtn.querySelector('.gg__btn-text').textContent = 'Added to Cart!';
+        refreshCartCount();
+
+        setTimeout(function () {
+          addBtn.classList.remove('success');
+          addBtn.disabled = false;
+          addBtn.querySelector('.gg__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:15px;height:15px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+        }, 2500);
+      })
+      .catch(function (err) {
+        addBtn.classList.remove('loading');
+        addBtn.disabled = false;
+        addBtn.querySelector('.gg__btn-text').textContent = 'Try Again';
+        showToast('Could not add to cart. Please try again.');
+        console.error('[GiftGuide]', err);
+      });
   });
 
-  closeBtn.addEventListener('click', closeFlyout);
+  /* ==========================================
+     CLOSE HANDLERS
+  ========================================== */
+  closeEl.addEventListener('click', closeFlyout);
   overlay.addEventListener('click', closeFlyout);
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && flyout.classList.contains('is-open')) closeFlyout(); });
-  document.querySelectorAll('.gift-guide__product-card').forEach(function(card) {
-    card.addEventListener('click', handleCardClick);
-    card.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(e); } });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeFlyout();
   });
+
+  /* ==========================================
+     INIT — ATTACH CARDS
+  ========================================== */
+  document.querySelectorAll('.gg__card').forEach(function (card) {
+    card.addEventListener('click', onCardClick);
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onCardClick(e);
+      }
+    });
+  });
+
 })();
 </script>
 
@@ -693,23 +978,49 @@
 {
   "name": "Gift Guide",
   "tag": "section",
-  "class": "gift-guide-wrapper",
+  "class": "gift-guide-section",
   "settings": [
-    { "type": "text", "id": "store_name", "label": "Store Name", "default": "Tisso Vison" },
-    { "type": "text", "id": "nav_tagline", "label": "Nav Tagline", "default": "Find the ideal gift for your loved ones." },
-    { "type": "text", "id": "hero_title", "label": "Hero Title", "default": "The Gift Guide" },
-    { "type": "textarea", "id": "hero_subtitle", "label": "Hero Subtitle", "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season." },
-    { "type": "text", "id": "hero_btn_text", "label": "Nav CTA Button Text", "default": "Choose Gift" },
-    { "type": "text", "id": "shop_btn_text", "label": "Hero Button Text", "default": "Shop Now" },
-    { "type": "text", "id": "sustainability_text", "label": "Sustainability Bar Text", "default": "Sustainable, Ethically Made Clothes in Sizes XXS to 6XL" },
-    { "type": "text", "id": "grid_title", "label": "Grid Section Title", "default": "Tisso vison in the wild" }
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero Title",
+      "default": "The Gift Guide"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subtitle",
+      "label": "Hero Subtitle",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season."
+    },
+    {
+      "type": "text",
+      "id": "hero_btn_label",
+      "label": "Hero Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "text",
+      "id": "bar_text",
+      "label": "Sustainability Bar Text",
+      "default": "Sustainable, Ethically Made Clothes in Sizes XXS to 6XL"
+    },
+    {
+      "type": "text",
+      "id": "grid_title",
+      "label": "Grid Section Title",
+      "default": "Tisso vison in the wild"
+    }
   ],
   "blocks": [
     {
       "type": "product",
       "name": "Product",
       "settings": [
-        { "type": "product", "id": "product", "label": "Product" }
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
       ]
     }
   ],

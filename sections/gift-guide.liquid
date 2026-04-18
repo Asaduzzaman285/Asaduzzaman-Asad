@@ -1,21 +1,16 @@
 {% comment %}
-  Gift Guide Section
-  - Displays a hero area with title and CTA button
-  - Shows a 4-column product grid (products selectable from customizer)
-  - Opens a flyout popup on product click with:
-      * Product image, name, price, description
-      * Color variant selector
-      * Size variant selector (dropdown)
-      * AJAX Add to Cart button
-      * Sold Out state when Black+White variant is selected
-  - Fully responsive (mobile: 2 columns, stacked popup)
+  Gift Guide Section — Pixel perfect match to Figma design
+  - Hero with illustrated gadgets background
+  - Navbar: logo left, tagline center, CTA right
+  - 3-column x 2-row product grid (6 products)
+  - Side-by-side flyout popup (image left, details right)
+  - AJAX Add to Cart
+  - Sold Out when Black+White variant selected
+  - Fully responsive mobile layout
   - No jQuery, vanilla JS only
 {% endcomment %}
 
 <style>
-  /* =============================================
-     GIFT GUIDE — CSS VARIABLES & RESET
-  ============================================= */
   .gift-guide-section * {
     box-sizing: border-box;
     margin: 0;
@@ -29,80 +24,118 @@
   }
 
   /* =============================================
+     CUSTOM NAVBAR
+  ============================================= */
+  .gift-guide__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 56px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fff;
+    position: relative;
+    z-index: 10;
+  }
+
+  .gift-guide__nav-logo {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #111;
+    text-decoration: none;
+  }
+
+  .gift-guide__nav-tagline {
+    font-size: 13px;
+    color: #555;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .gift-guide__nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFD700;
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .gift-guide__nav-cta:hover { background: #f0c800; }
+
+  .gift-guide__nav-cta svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* =============================================
      HERO
   ============================================= */
   .gift-guide__hero {
     position: relative;
     width: 100%;
-    min-height: 420px;
-    display: flex;
-    align-items: center;
+    min-height: 480px;
+    background: #fff;
     overflow: hidden;
-    background-color: #f5f5f0;
-    padding: 60px 40px;
+    display: flex;
+    align-items: flex-end;
   }
 
-  .gift-guide__hero-bg {
+  .gift-guide__hero-illustration {
     position: absolute;
     inset: 0;
-    background-image: url('{{ section.settings.hero_bg_image | img_url: "master" }}');
+    background-image: url('https://cdn.shopify.com/s/files/1/0672/3711/8050/files/Frame_1957.png?v=1776530764');
     background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    pointer-events: none;
-  }
-
-  /* Illustrated pattern overlay (matches Figma sketched gadgets look) */
-  .gift-guide__hero-pattern {
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
-    background-size: 30px 30px;
-    opacity: 0.12;
-    pointer-events: none;
+    background-position: center top;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
   }
 
   .gift-guide__hero-content {
     position: relative;
-    z-index: 1;
-    max-width: 480px;
-  }
-
-  .gift-guide__hero-logo {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #111;
-    margin-bottom: 20px;
+    z-index: 2;
+    padding: 40px 40px 48px;
+    max-width: 520px;
   }
 
   .gift-guide__hero-title {
-    font-size: clamp(36px, 5vw, 64px);
+    font-size: clamp(40px, 5vw, 72px);
     font-weight: 800;
-    line-height: 1.1;
+    line-height: 1.05;
     letter-spacing: -0.02em;
     color: #111;
     margin-bottom: 16px;
   }
 
   .gift-guide__hero-subtitle {
-    font-size: 15px;
-    color: #555;
+    font-size: 14px;
+    color: #333;
     line-height: 1.6;
     margin-bottom: 28px;
-    max-width: 340px;
+    max-width: 380px;
   }
 
   .gift-guide__hero-btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    background: #FFD700;
-    color: #111;
-    font-size: 13px;
+    gap: 12px;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     padding: 14px 28px;
     border: none;
@@ -112,7 +145,7 @@
   }
 
   .gift-guide__hero-btn:hover {
-    background: #f0c800;
+    background: #333;
     transform: translateX(3px);
   }
 
@@ -121,38 +154,43 @@
     height: 16px;
   }
 
+  /* Sustainability bar */
+  .gift-guide__sustainability {
+    text-align: center;
+    padding: 12px 40px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fff;
+  }
+
   /* =============================================
      SECTION HEADER
   ============================================= */
   .gift-guide__header {
     padding: 48px 40px 24px;
-    border-bottom: 1px solid #eee;
-  }
-
-  .gift-guide__section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #999;
-    margin-bottom: 8px;
   }
 
   .gift-guide__section-title {
-    font-size: clamp(22px, 3vw, 36px);
+    font-size: clamp(24px, 3vw, 40px);
     font-weight: 800;
     letter-spacing: -0.02em;
     color: #111;
   }
 
   /* =============================================
-     PRODUCT GRID
+     PRODUCT GRID — 3 columns
   ============================================= */
   .gift-guide__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    padding: 0 40px 60px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 0 0 60px;
+    background: #e0e0e0;
   }
 
   .gift-guide__product-card {
@@ -173,7 +211,7 @@
   }
 
   .gift-guide__product-card:hover::after {
-    background: rgba(0,0,0,0.08);
+    background: rgba(0,0,0,0.06);
   }
 
   .gift-guide__product-img {
@@ -188,7 +226,6 @@
     transform: scale(1.04);
   }
 
-  /* Small + icon on card */
   .gift-guide__product-plus {
     position: absolute;
     bottom: 14px;
@@ -234,7 +271,7 @@
   }
 
   /* =============================================
-     FLYOUT POPUP
+     FLYOUT POPUP — side by side layout
   ============================================= */
   .gift-guide__flyout {
     position: fixed;
@@ -244,7 +281,7 @@
     z-index: 9999;
     background: #fff;
     width: 90%;
-    max-width: 560px;
+    max-width: 680px;
     max-height: 90vh;
     overflow-y: auto;
     opacity: 0;
@@ -260,41 +297,37 @@
   }
 
   .gift-guide__flyout-inner {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: 400px;
   }
 
-  /* Flyout close button */
   .gift-guide__flyout-close {
     position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 30px;
-    height: 30px;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
     background: none;
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 20px;
     color: #111;
     z-index: 10;
     line-height: 1;
     padding: 0;
   }
 
-  .gift-guide__flyout-close:hover {
-    opacity: 0.6;
-  }
+  .gift-guide__flyout-close:hover { opacity: 0.6; }
 
-  /* Flyout image */
   .gift-guide__flyout-image-wrap {
     width: 100%;
-    aspect-ratio: 4/3;
+    height: 100%;
     overflow: hidden;
     background: #f0f0ec;
-    flex-shrink: 0;
   }
 
   .gift-guide__flyout-image {
@@ -304,13 +337,14 @@
     display: block;
   }
 
-  /* Flyout body */
   .gift-guide__flyout-body {
-    padding: 24px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
   }
 
   .gift-guide__flyout-name {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     letter-spacing: -0.01em;
     color: #111;
@@ -319,22 +353,21 @@
   }
 
   .gift-guide__flyout-price {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #111;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .gift-guide__flyout-desc {
-    font-size: 13px;
+    font-size: 12px;
     color: #666;
     line-height: 1.6;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
 
-  /* Color selector */
   .gift-guide__flyout-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -345,26 +378,23 @@
 
   .gift-guide__color-options {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
 
   .gift-guide__color-btn {
-    padding: 7px 16px;
+    padding: 6px 14px;
     border: 1.5px solid #ddd;
     background: #fff;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: #111;
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
-    white-space: nowrap;
   }
 
-  .gift-guide__color-btn:hover {
-    border-color: #111;
-  }
+  .gift-guide__color-btn:hover { border-color: #111; }
 
   .gift-guide__color-btn.is-selected {
     border-color: #111;
@@ -372,20 +402,19 @@
     color: #fff;
   }
 
-  /* Size selector */
   .gift-guide__size-select {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1.5px solid #ddd;
     background: #fff;
-    font-size: 14px;
+    font-size: 13px;
     color: #111;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23111' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 14px center;
+    background-position: right 12px center;
   }
 
   .gift-guide__size-select:focus {
@@ -393,13 +422,12 @@
     border-color: #111;
   }
 
-  /* Add to cart button */
   .gift-guide__add-btn {
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     background: #111;
     color: #fff;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -409,35 +437,24 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: background 0.2s, transform 0.15s;
+    transition: background 0.2s;
+    margin-top: auto;
   }
 
-  .gift-guide__add-btn:hover:not(:disabled) {
-    background: #333;
-    transform: translateY(-1px);
-  }
+  .gift-guide__add-btn:hover:not(:disabled) { background: #333; }
 
   .gift-guide__add-btn:disabled,
   .gift-guide__add-btn.is-sold-out {
     background: #ccc;
     color: #888;
     cursor: not-allowed;
-    transform: none;
   }
 
-  .gift-guide__add-btn.is-success {
-    background: #2a7a4b;
-  }
+  .gift-guide__add-btn.is-success { background: #2a7a4b; }
 
-  .gift-guide__add-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* Loading spinner */
   .gift-guide__spinner {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border: 2px solid rgba(255,255,255,0.3);
     border-top-color: #fff;
     border-radius: 50%;
@@ -445,47 +462,27 @@
     display: none;
   }
 
-  .gift-guide__add-btn.is-loading .gift-guide__spinner {
-    display: block;
-  }
-
-  .gift-guide__add-btn.is-loading .gift-guide__btn-text {
-    display: none;
-  }
+  .gift-guide__add-btn.is-loading .gift-guide__spinner { display: block; }
+  .gift-guide__add-btn.is-loading .gift-guide__btn-text { display: none; }
 
   @keyframes giftSpinner {
     to { transform: rotate(360deg); }
   }
 
-  /* =============================================
-     RESPONSIVE — TABLET
-  ============================================= */
+  /* TABLET */
   @media screen and (max-width: 1024px) {
-    .gift-guide__grid {
-      grid-template-columns: repeat(3, 1fr);
-      padding: 0 20px 40px;
-    }
+    .gift-guide__nav-tagline { display: none; }
   }
 
-  /* =============================================
-     RESPONSIVE — MOBILE
-  ============================================= */
+  /* MOBILE */
   @media screen and (max-width: 768px) {
-    .gift-guide__hero {
-      padding: 40px 20px;
-      min-height: 320px;
-    }
-
-    .gift-guide__header {
-      padding: 32px 20px 16px;
-    }
-
-    .gift-guide__grid {
-      grid-template-columns: repeat(2, 1fr);
-      padding: 0 0 40px;
-      gap: 0;
-    }
-
+    .gift-guide__nav { padding: 0 16px; }
+    .gift-guide__nav-tagline { display: none; }
+    .gift-guide__hero { min-height: 360px; }
+    .gift-guide__hero-content { padding: 24px 20px 32px; }
+    .gift-guide__sustainability { padding: 10px 20px; font-size: 9px; }
+    .gift-guide__header { padding: 32px 20px 16px; }
+    .gift-guide__grid { grid-template-columns: repeat(2, 1fr); }
     .gift-guide__flyout {
       width: 100%;
       max-width: 100%;
@@ -495,36 +492,35 @@
       right: 0;
       transform: translateY(20px);
       border-radius: 16px 16px 0 0;
-      max-height: 85vh;
+      max-height: 88vh;
     }
-
-    .gift-guide__flyout.is-open {
-      transform: translateY(0);
-    }
-
-    .gift-guide__flyout-image-wrap {
-      aspect-ratio: 16/9;
-    }
-
-    .gift-guide__flyout-body {
-      padding: 20px;
-    }
+    .gift-guide__flyout.is-open { transform: translateY(0); }
+    .gift-guide__flyout-inner { grid-template-columns: 1fr; }
+    .gift-guide__flyout-image-wrap { height: 220px; }
   }
 </style>
 
-<!-- ============================================
-     HERO SECTION
-============================================= -->
 <div class="gift-guide-section">
+  <!-- NAVBAR -->
+  <nav class="gift-guide__nav">
+    <a href="/" class="gift-guide__nav-logo">{{ section.settings.store_name | default: 'Tisso Vison' }}</a>
+    <span class="gift-guide__nav-tagline">{{ section.settings.nav_tagline | default: 'Find the ideal gift for your loved ones.' }}</span>
+    <a href="#gift-guide-grid" class="gift-guide__nav-cta">
+      {{ section.settings.hero_btn_text | default: 'Choose Gift' }}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </nav>
+
+  <!-- HERO -->
   <div class="gift-guide__hero">
-    <div class="gift-guide__hero-bg"></div>
-    <div class="gift-guide__hero-pattern"></div>
+    <div class="gift-guide__hero-illustration"></div>
     <div class="gift-guide__hero-content">
-      <p class="gift-guide__hero-logo">{{ section.settings.store_name | default: 'Tisso Vison' }}</p>
       <h1 class="gift-guide__hero-title">{{ section.settings.hero_title | default: 'The Gift Guide' }}</h1>
       <p class="gift-guide__hero-subtitle">{{ section.settings.hero_subtitle | default: 'Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.' }}</p>
       <a href="#gift-guide-grid" class="gift-guide__hero-btn">
-        {{ section.settings.hero_btn_text | default: 'Choose Gift' }}
+        {{ section.settings.shop_btn_text | default: 'Shop Now' }}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
@@ -532,17 +528,17 @@
     </div>
   </div>
 
-  <!-- ============================================
-       SECTION HEADER
-  ============================================= -->
+  <!-- SUSTAINABILITY BAR -->
+  <div class="gift-guide__sustainability">
+    {{ section.settings.sustainability_text | default: 'Sustainable, Ethically Made Clothes in Sizes XXS to 6XL' }}
+  </div>
+
+  <!-- SECTION HEADER -->
   <div class="gift-guide__header">
-    <p class="gift-guide__section-label">Collection</p>
     <h2 class="gift-guide__section-title">{{ section.settings.grid_title | default: 'Tisso vison in the wild' }}</h2>
   </div>
 
-  <!-- ============================================
-       PRODUCT GRID
-  ============================================= -->
+  <!-- PRODUCT GRID -->
   <div class="gift-guide__grid" id="gift-guide-grid">
     {% for block in section.blocks %}
       {% if block.type == 'product' %}
@@ -575,21 +571,11 @@
     {% endfor %}
   </div>
 
-  <!-- ============================================
-       FLYOUT OVERLAY
-  ============================================= -->
+  <!-- OVERLAY -->
   <div class="gift-guide__overlay" id="giftGuideOverlay" role="presentation"></div>
 
-  <!-- ============================================
-       FLYOUT POPUP
-  ============================================= -->
-  <div
-    class="gift-guide__flyout"
-    id="giftGuideFlyout"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Product details"
-  >
+  <!-- FLYOUT POPUP -->
+  <div class="gift-guide__flyout" id="giftGuideFlyout" role="dialog" aria-modal="true" aria-label="Product details">
     <button class="gift-guide__flyout-close" id="giftGuideFlyoutClose" aria-label="Close">&#x2715;</button>
     <div class="gift-guide__flyout-inner">
       <div class="gift-guide__flyout-image-wrap">
@@ -599,26 +585,15 @@
         <h3 class="gift-guide__flyout-name" id="flyoutName"></h3>
         <p class="gift-guide__flyout-price" id="flyoutPrice"></p>
         <p class="gift-guide__flyout-desc" id="flyoutDesc"></p>
-
-        <!-- Color selector -->
         <span class="gift-guide__flyout-label">Color</span>
         <div class="gift-guide__color-options" id="flyoutColors"></div>
-
-        <!-- Size selector -->
         <label class="gift-guide__flyout-label" for="flyoutSize">Size</label>
         <select class="gift-guide__size-select" id="flyoutSize">
           <option value="">Choose your size</option>
         </select>
-
-        <!-- Add to Cart -->
         <button class="gift-guide__add-btn" id="flyoutAddBtn" type="button">
           <div class="gift-guide__spinner"></div>
-          <span class="gift-guide__btn-text">
-            Add to Cart
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
+          <span class="gift-guide__btn-text">Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:14px;height:14px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
         </button>
       </div>
     </div>
@@ -628,347 +603,89 @@
 <script>
 (function() {
   'use strict';
+  var state = { currentProduct: null, selectedColor: null, selectedSize: null, selectedVariantId: null, isSoldOut: false };
+  var overlay  = document.getElementById('giftGuideOverlay');
+  var flyout   = document.getElementById('giftGuideFlyout');
+  var closeBtn = document.getElementById('giftGuideFlyoutClose');
+  var imgEl    = document.getElementById('flyoutImage');
+  var nameEl   = document.getElementById('flyoutName');
+  var priceEl  = document.getElementById('flyoutPrice');
+  var descEl   = document.getElementById('flyoutDesc');
+  var colorsEl = document.getElementById('flyoutColors');
+  var sizeEl   = document.getElementById('flyoutSize');
+  var addBtn   = document.getElementById('flyoutAddBtn');
 
-  // ============================================
-  // STATE
-  // ============================================
-  var state = {
-    currentProduct: null,   // full product JSON
-    selectedColor: null,
-    selectedSize: null,
-    selectedVariantId: null,
-    isSoldOut: false
-  };
+  function formatMoney(cents) { return (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
+  function openFlyout() { overlay.classList.add('is-open'); flyout.classList.add('is-open'); document.body.style.overflow = 'hidden'; closeBtn.focus(); }
+  function closeFlyout() { overlay.classList.remove('is-open'); flyout.classList.remove('is-open'); document.body.style.overflow = ''; state.currentProduct = null; state.selectedColor = null; state.selectedSize = null; state.selectedVariantId = null; resetAddBtn(); }
+  function resetAddBtn() { addBtn.disabled = false; addBtn.classList.remove('is-loading', 'is-sold-out', 'is-success'); addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:14px;height:14px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
+  function findVariant(product, color, size) { if (!product || !product.variants) return null; return product.variants.find(function(v) { var opts = v.options || []; return (!color || opts.indexOf(color) !== -1) && (!size || opts.indexOf(size) !== -1); }) || null; }
+  function getColorOptions(product) { var o = product.options && product.options.find(function(o) { return o.name.toLowerCase() === 'color'; }); return o ? o.values : []; }
+  function getSizeOptions(product) { var o = product.options && product.options.find(function(o) { return o.name.toLowerCase() === 'size'; }); return o ? o.values : []; }
+  function checkSoldOut(color) { if (!state.currentProduct || (color !== 'Black' && color !== 'White')) return false; var colors = getColorOptions(state.currentProduct); return colors.indexOf('Black') !== -1 && colors.indexOf('White') !== -1; }
 
-  // ============================================
-  // ELEMENTS
-  // ============================================
-  var overlay    = document.getElementById('giftGuideOverlay');
-  var flyout     = document.getElementById('giftGuideFlyout');
-  var closeBtn   = document.getElementById('giftGuideFlyoutClose');
-  var imgEl      = document.getElementById('flyoutImage');
-  var nameEl     = document.getElementById('flyoutName');
-  var priceEl    = document.getElementById('flyoutPrice');
-  var descEl     = document.getElementById('flyoutDesc');
-  var colorsEl   = document.getElementById('flyoutColors');
-  var sizeEl     = document.getElementById('flyoutSize');
-  var addBtn     = document.getElementById('flyoutAddBtn');
-
-  // ============================================
-  // FORMAT MONEY
-  // ============================================
-  function formatMoney(cents) {
-    return (cents / 100).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    });
-  }
-
-  // ============================================
-  // OPEN / CLOSE FLYOUT
-  // ============================================
-  function openFlyout() {
-    overlay.classList.add('is-open');
-    flyout.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-    closeBtn.focus();
-  }
-
-  function closeFlyout() {
-    overlay.classList.remove('is-open');
-    flyout.classList.remove('is-open');
-    document.body.style.overflow = '';
-    state.currentProduct = null;
-    state.selectedColor = null;
-    state.selectedSize = null;
-    state.selectedVariantId = null;
-    resetAddBtn();
-  }
-
-  // ============================================
-  // RESET ADD BUTTON
-  // ============================================
-  function resetAddBtn() {
-    addBtn.disabled = false;
-    addBtn.classList.remove('is-loading', 'is-sold-out', 'is-success');
-    addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:16px;height:16px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-  }
-
-  // ============================================
-  // FIND VARIANT FROM SELECTED OPTIONS
-  // ============================================
-  function findVariant(product, color, size) {
-    if (!product || !product.variants) return null;
-    return product.variants.find(function(v) {
-      var opts = v.options || [];
-      var hasColor = !color || opts.indexOf(color) !== -1;
-      var hasSize  = !size  || opts.indexOf(size)  !== -1;
-      return hasColor && hasSize;
-    }) || null;
-  }
-
-  // ============================================
-  // CHECK SOLD OUT
-  // Black + White combination = Sold Out
-  // ============================================
-  function checkSoldOut(color) {
-    if (color === 'Black' || color === 'White') {
-      // Check if product has both Black AND White variants
-      if (!state.currentProduct) return false;
-      var colors = getColorOptions(state.currentProduct);
-      var hasBlack = colors.indexOf('Black') !== -1;
-      var hasWhite = colors.indexOf('White') !== -1;
-      if (hasBlack && hasWhite) {
-        return true; // Sold Out when both exist and one is selected
-      }
-    }
-    return false;
-  }
-
-  // ============================================
-  // GET UNIQUE COLOR OPTIONS
-  // ============================================
-  function getColorOptions(product) {
-    var colorOpt = product.options && product.options.find(function(o) {
-      return o.name.toLowerCase() === 'color';
-    });
-    return colorOpt ? colorOpt.values : [];
-  }
-
-  // ============================================
-  // GET UNIQUE SIZE OPTIONS
-  // ============================================
-  function getSizeOptions(product) {
-    var sizeOpt = product.options && product.options.find(function(o) {
-      return o.name.toLowerCase() === 'size';
-    });
-    return sizeOpt ? sizeOpt.values : [];
-  }
-
-  // ============================================
-  // UPDATE VARIANT SELECTION
-  // ============================================
   function updateVariantSelection() {
     var variant = findVariant(state.currentProduct, state.selectedColor, state.selectedSize);
     state.selectedVariantId = variant ? variant.id : null;
     state.isSoldOut = checkSoldOut(state.selectedColor);
-
-    // Update price
-    if (variant) {
-      priceEl.textContent = formatMoney(variant.price);
-    }
-
-    // Update add button
-    if (state.isSoldOut) {
-      addBtn.disabled = true;
-      addBtn.classList.add('is-sold-out');
-      addBtn.querySelector('.gift-guide__btn-text').textContent = 'Sold Out';
-    } else {
-      addBtn.disabled = false;
-      addBtn.classList.remove('is-sold-out');
-      addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:16px;height:16px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-    }
+    if (variant) priceEl.textContent = formatMoney(variant.price);
+    if (state.isSoldOut) { addBtn.disabled = true; addBtn.classList.add('is-sold-out'); addBtn.querySelector('.gift-guide__btn-text').textContent = 'Sold Out'; }
+    else { addBtn.disabled = false; addBtn.classList.remove('is-sold-out'); addBtn.querySelector('.gift-guide__btn-text').innerHTML = 'Add to Cart <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;width:14px;height:14px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
   }
 
-  // ============================================
-  // RENDER FLYOUT CONTENT
-  // ============================================
   function renderFlyout(product) {
     state.currentProduct = product;
-
-    // Image
     var img = product.featured_image || (product.images && product.images[0]) || '';
-    imgEl.src = img ? img + '&width=600' : '';
-    imgEl.alt = product.title;
-
-    // Name
+    imgEl.src = img ? img + '&width=600' : ''; imgEl.alt = product.title;
     nameEl.textContent = product.title;
-
-    // Price
-    var firstVariant = product.variants && product.variants[0];
-    priceEl.textContent = firstVariant ? formatMoney(firstVariant.price) : '';
-
-    // Description (strip HTML tags)
-    var tempDiv = document.createElement('div');
-    tempDiv.innerHTML = product.description || '';
-    descEl.textContent = tempDiv.textContent || tempDiv.innerText || '';
-
-    // Color options
-    var colors = getColorOptions(product);
-    colorsEl.innerHTML = '';
-    state.selectedColor = colors[0] || null;
-
+    var fv = product.variants && product.variants[0];
+    priceEl.textContent = fv ? formatMoney(fv.price) : '';
+    var d = document.createElement('div'); d.innerHTML = product.description || ''; descEl.textContent = d.textContent || d.innerText || '';
+    var colors = getColorOptions(product); colorsEl.innerHTML = ''; state.selectedColor = colors[0] || null;
     colors.forEach(function(color) {
       var btn = document.createElement('button');
       btn.className = 'gift-guide__color-btn' + (color === state.selectedColor ? ' is-selected' : '');
-      btn.textContent = color;
-      btn.setAttribute('type', 'button');
-      btn.setAttribute('data-color', color);
-      btn.addEventListener('click', function() {
-        state.selectedColor = color;
-        document.querySelectorAll('.gift-guide__color-btn').forEach(function(b) {
-          b.classList.toggle('is-selected', b.getAttribute('data-color') === color);
-        });
-        updateVariantSelection();
-      });
+      btn.textContent = color; btn.setAttribute('type', 'button'); btn.setAttribute('data-color', color);
+      btn.addEventListener('click', function() { state.selectedColor = color; document.querySelectorAll('.gift-guide__color-btn').forEach(function(b) { b.classList.toggle('is-selected', b.getAttribute('data-color') === color); }); updateVariantSelection(); });
       colorsEl.appendChild(btn);
     });
-
-    // Size options
-    var sizes = getSizeOptions(product);
-    sizeEl.innerHTML = '<option value="">Choose your size</option>';
-    state.selectedSize = null;
-
-    sizes.forEach(function(size) {
-      var opt = document.createElement('option');
-      opt.value = size;
-      opt.textContent = size;
-      sizeEl.appendChild(opt);
-    });
-
-    sizeEl.addEventListener('change', function() {
-      state.selectedSize = this.value || null;
-      updateVariantSelection();
-    });
-
-    // Initial variant check
+    var sizes = getSizeOptions(product); sizeEl.innerHTML = '<option value="">Choose your size</option>'; state.selectedSize = null;
+    sizes.forEach(function(size) { var opt = document.createElement('option'); opt.value = size; opt.textContent = size; sizeEl.appendChild(opt); });
+    sizeEl.addEventListener('change', function() { state.selectedSize = this.value || null; updateVariantSelection(); });
     updateVariantSelection();
   }
 
-  // ============================================
-  // FETCH PRODUCT DATA FROM SHOPIFY AJAX API
-  // ============================================
-  function fetchProduct(handle) {
-    return fetch('/products/' + handle + '.js')
-      .then(function(res) {
-        if (!res.ok) throw new Error('Product not found');
-        return res.json();
-      });
-  }
+  function fetchProduct(handle) { return fetch('/products/' + handle + '.js').then(function(res) { if (!res.ok) throw new Error('Not found'); return res.json(); }); }
+  function addToCart(variantId, qty) { return fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: variantId, quantity: qty || 1 }) }).then(function(res) { if (!res.ok) throw new Error('Cart error'); return res.json(); }); }
 
-  // ============================================
-  // AJAX ADD TO CART
-  // ============================================
-  function addToCart(variantId, quantity) {
-    return fetch('/cart/add.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: variantId, quantity: quantity || 1 })
-    }).then(function(res) {
-      if (!res.ok) throw new Error('Could not add to cart');
-      return res.json();
-    });
-  }
-
-  // ============================================
-  // CARD CLICK HANDLER
-  // ============================================
   function handleCardClick(e) {
-    var card = e.currentTarget;
-    var handle = card.getAttribute('data-product-handle');
-    if (!handle) return;
-
-    openFlyout();
-    nameEl.textContent = 'Loading...';
-    priceEl.textContent = '';
-    descEl.textContent = '';
-    imgEl.src = card.querySelector('.gift-guide__product-img') ?
-      card.querySelector('.gift-guide__product-img').src : '';
-    colorsEl.innerHTML = '';
-    sizeEl.innerHTML = '<option value="">Choose your size</option>';
-    resetAddBtn();
-
-    fetchProduct(handle)
-      .then(function(product) {
-        renderFlyout(product);
-      })
-      .catch(function(err) {
-        nameEl.textContent = 'Error loading product';
-        console.error('[GiftGuide]', err);
-      });
+    var card = e.currentTarget; var handle = card.getAttribute('data-product-handle'); if (!handle) return;
+    openFlyout(); nameEl.textContent = 'Loading...'; priceEl.textContent = ''; descEl.textContent = '';
+    imgEl.src = card.querySelector('.gift-guide__product-img') ? card.querySelector('.gift-guide__product-img').src : '';
+    colorsEl.innerHTML = ''; sizeEl.innerHTML = '<option value="">Choose your size</option>'; resetAddBtn();
+    fetchProduct(handle).then(renderFlyout).catch(function(err) { nameEl.textContent = 'Error loading product'; console.error('[GiftGuide]', err); });
   }
 
-  // ============================================
-  // ADD TO CART CLICK HANDLER
-  // ============================================
   addBtn.addEventListener('click', function() {
     if (state.isSoldOut || addBtn.disabled) return;
-
-    // Must select size
-    if (!state.selectedSize) {
-      sizeEl.style.borderColor = '#e00';
-      sizeEl.focus();
-      setTimeout(function() { sizeEl.style.borderColor = ''; }, 1500);
-      return;
-    }
-
+    if (!state.selectedSize) { sizeEl.style.borderColor = '#e00'; sizeEl.focus(); setTimeout(function() { sizeEl.style.borderColor = ''; }, 1500); return; }
     var variant = findVariant(state.currentProduct, state.selectedColor, state.selectedSize);
-    if (!variant) {
-      alert('Please select a valid combination.');
-      return;
-    }
-
-    // Show loading
-    addBtn.classList.add('is-loading');
-    addBtn.disabled = true;
-
-    addToCart(variant.id, 1)
-      .then(function() {
-        addBtn.classList.remove('is-loading');
-        addBtn.classList.add('is-success');
-        addBtn.querySelector('.gift-guide__btn-text').textContent = 'Added!';
-
-        // Update cart count if theme has one
-        fetch('/cart.js')
-          .then(function(r) { return r.json(); })
-          .then(function(cart) {
-            var bubble = document.querySelector('.cart-count-bubble, [data-cart-count], .header__cart-count');
-            if (bubble) bubble.textContent = cart.item_count;
-          });
-
-        // Reset after 2s
-        setTimeout(function() {
-          addBtn.classList.remove('is-success');
-          addBtn.disabled = false;
-          resetAddBtn();
-        }, 2000);
-      })
-      .catch(function(err) {
-        addBtn.classList.remove('is-loading');
-        addBtn.disabled = false;
-        addBtn.querySelector('.gift-guide__btn-text').textContent = 'Try again';
-        console.error('[GiftGuide] Add to cart error:', err);
-      });
+    if (!variant) { alert('Please select a valid combination.'); return; }
+    addBtn.classList.add('is-loading'); addBtn.disabled = true;
+    addToCart(variant.id, 1).then(function() {
+      addBtn.classList.remove('is-loading'); addBtn.classList.add('is-success'); addBtn.querySelector('.gift-guide__btn-text').textContent = 'Added!';
+      fetch('/cart.js').then(function(r) { return r.json(); }).then(function(cart) { var b = document.querySelector('.cart-count-bubble, [data-cart-count], .header__cart-count'); if (b) b.textContent = cart.item_count; });
+      setTimeout(function() { addBtn.classList.remove('is-success'); addBtn.disabled = false; resetAddBtn(); }, 2000);
+    }).catch(function(err) { addBtn.classList.remove('is-loading'); addBtn.disabled = false; addBtn.querySelector('.gift-guide__btn-text').textContent = 'Try again'; console.error('[GiftGuide]', err); });
   });
 
-  // ============================================
-  // CLOSE HANDLERS
-  // ============================================
   closeBtn.addEventListener('click', closeFlyout);
   overlay.addEventListener('click', closeFlyout);
-
-  // Close on Escape key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && flyout.classList.contains('is-open')) {
-      closeFlyout();
-    }
-  });
-
-  // ============================================
-  // INIT — ATTACH CLICK TO ALL PRODUCT CARDS
-  // ============================================
-  var cards = document.querySelectorAll('.gift-guide__product-card');
-  cards.forEach(function(card) {
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && flyout.classList.contains('is-open')) closeFlyout(); });
+  document.querySelectorAll('.gift-guide__product-card').forEach(function(card) {
     card.addEventListener('click', handleCardClick);
-    // Keyboard accessibility
-    card.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleCardClick(e);
-      }
-    });
+    card.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(e); } });
   });
-
 })();
 </script>
 
@@ -978,52 +695,21 @@
   "tag": "section",
   "class": "gift-guide-wrapper",
   "settings": [
-    {
-      "type": "text",
-      "id": "store_name",
-      "label": "Store Name (Hero)",
-      "default": "Tisso Vison"
-    },
-    {
-      "type": "text",
-      "id": "hero_title",
-      "label": "Hero Title",
-      "default": "The Gift Guide"
-    },
-    {
-      "type": "textarea",
-      "id": "hero_subtitle",
-      "label": "Hero Subtitle",
-      "default": "Discover Joy: Your Ultimate Holiday Gift Destination."
-    },
-    {
-      "type": "text",
-      "id": "hero_btn_text",
-      "label": "Hero Button Text",
-      "default": "Choose Gift"
-    },
-    {
-      "type": "image_picker",
-      "id": "hero_bg_image",
-      "label": "Hero Background Image (optional)"
-    },
-    {
-      "type": "text",
-      "id": "grid_title",
-      "label": "Grid Section Title",
-      "default": "Tisso vison in the wild"
-    }
+    { "type": "text", "id": "store_name", "label": "Store Name", "default": "Tisso Vison" },
+    { "type": "text", "id": "nav_tagline", "label": "Nav Tagline", "default": "Find the ideal gift for your loved ones." },
+    { "type": "text", "id": "hero_title", "label": "Hero Title", "default": "The Gift Guide" },
+    { "type": "textarea", "id": "hero_subtitle", "label": "Hero Subtitle", "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season." },
+    { "type": "text", "id": "hero_btn_text", "label": "Nav CTA Button Text", "default": "Choose Gift" },
+    { "type": "text", "id": "shop_btn_text", "label": "Hero Button Text", "default": "Shop Now" },
+    { "type": "text", "id": "sustainability_text", "label": "Sustainability Bar Text", "default": "Sustainable, Ethically Made Clothes in Sizes XXS to 6XL" },
+    { "type": "text", "id": "grid_title", "label": "Grid Section Title", "default": "Tisso vison in the wild" }
   ],
   "blocks": [
     {
       "type": "product",
       "name": "Product",
       "settings": [
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Product"
-        }
+        { "type": "product", "id": "product", "label": "Product" }
       ]
     }
   ],
@@ -1031,6 +717,8 @@
     {
       "name": "Gift Guide",
       "blocks": [
+        { "type": "product" },
+        { "type": "product" },
         { "type": "product" },
         { "type": "product" },
         { "type": "product" },

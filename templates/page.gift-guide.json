@@ -1,0 +1,36 @@
+{
+  "sections": {
+    "gift_guide": {
+      "type": "gift-guide",
+      "blocks": {
+        "product_1": {
+          "type": "product",
+          "settings": {
+            "product": "led-high-tops"
+          }
+        },
+        "product_2": {
+          "type": "product",
+          "settings": {
+            "product": "blue-silk-tuxedo"
+          }
+        },
+        "product_3": {
+          "type": "product",
+          "settings": {
+            "product": "classic-leather-jacket"
+          }
+        },
+        "product_4": {
+          "type": "product",
+          "settings": {
+            "product": "floral-white-top"
+          }
+        }
+      },
+      "block_order": ["product_1","product_2","product_3","product_4"],
+      "settings": {}
+    }
+  },
+  "order": ["gift_guide"]
+}
